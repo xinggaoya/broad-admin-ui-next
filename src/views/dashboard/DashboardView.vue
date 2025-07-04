@@ -23,7 +23,7 @@
             <n-statistic label="总用户数" :value="1234">
               <template #prefix>
                 <n-icon>
-                  <UserOutlined />
+                  <PersonOutline />
                 </n-icon>
               </template>
             </n-statistic>
@@ -34,7 +34,7 @@
             <n-statistic label="今日访问" :value="5678" value-style="color: #18a058;">
               <template #prefix>
                 <n-icon color="#18a058">
-                  <EyeOutlined />
+                  <EyeOutline />
                 </n-icon>
               </template>
             </n-statistic>
@@ -45,7 +45,7 @@
             <n-statistic label="订单数量" :value="987" value-style="color: #2080f0;">
               <template #prefix>
                 <n-icon color="#2080f0">
-                  <ShoppingCartOutlined />
+                  <CartOutline />
                 </n-icon>
               </template>
             </n-statistic>
@@ -56,7 +56,7 @@
             <n-statistic label="销售额" :value="12345" :precision="2" value-style="color: #f0a020;">
               <template #prefix>
                 <n-icon color="#f0a020">
-                  <DollarOutlined />
+                  <CashOutline />
                 </n-icon>
               </template>
               <template #suffix>
@@ -76,7 +76,7 @@
             <n-button block type="primary" @click="goToUsers">
               <template #icon>
                 <n-icon>
-                  <UserOutlined />
+                  <PersonOutline />
                 </n-icon>
               </template>
               用户管理
@@ -86,7 +86,7 @@
             <n-button block @click="goToSettings">
               <template #icon>
                 <n-icon>
-                  <SettingOutlined />
+                  <SettingsOutline />
                 </n-icon>
               </template>
               系统设置
@@ -96,7 +96,7 @@
             <n-button block @click="goToProfile">
               <template #icon>
                 <n-icon>
-                  <EditOutlined />
+                  <CreateOutline />
                 </n-icon>
               </template>
               个人资料
@@ -104,6 +104,32 @@
           </n-gi>
         </n-grid>
       </n-card>
+    </div>
+
+    <!-- 图表区域 -->
+    <div class="charts-section">
+      <n-grid :cols="2" :x-gap="16" :y-gap="16">
+        <n-gi>
+          <n-card title="访问趋势">
+            <div ref="visitTrendChart" class="chart-container"></div>
+          </n-card>
+        </n-gi>
+        <n-gi>
+          <n-card title="销售统计">
+            <div ref="salesChart" class="chart-container"></div>
+          </n-card>
+        </n-gi>
+        <n-gi>
+          <n-card title="用户分布">
+            <div ref="userDistributionChart" class="chart-container"></div>
+          </n-card>
+        </n-gi>
+        <n-gi>
+          <n-card title="完成率">
+            <div ref="completionChart" class="chart-container"></div>
+          </n-card>
+        </n-gi>
+      </n-grid>
     </div>
 
     <!-- 系统信息 -->
@@ -154,14 +180,15 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/modules/user.ts'
+import { useCharts, chartConfigs } from '@/hooks/useCharts'
 import {
-  UserOutlined,
-  EyeOutlined,
-  ShoppingCartOutlined,
-  DollarOutlined,
-  SettingOutlined,
-  EditOutlined,
-} from '@vicons/antd'
+  PersonOutline,
+  EyeOutline,
+  CartOutline,
+  CashOutline,
+  SettingsOutline,
+  CreateOutline,
+} from '@vicons/ionicons5'
 
 defineOptions({
   name: 'DashboardView',
@@ -187,6 +214,53 @@ const currentDate = computed(() => {
 const onlineTime = ref('00:00:00')
 const startTime = Date.now()
 let timer: number | null = null
+
+// 图表引用
+const visitTrendChart = ref<HTMLElement>()
+const salesChart = ref<HTMLElement>()
+const userDistributionChart = ref<HTMLElement>()
+const completionChart = ref<HTMLElement>()
+
+// 图表实例
+const visitTrendChartInstance = useCharts()
+const salesChartInstance = useCharts()
+const userDistributionChartInstance = useCharts()
+const completionChartInstance = useCharts()
+
+// 模拟数据
+const visitTrendData = [
+  { name: '访问量', data: [120, 132, 101, 134, 90, 230, 210] },
+  { name: '用户数', data: [220, 182, 191, 234, 290, 330, 310] },
+]
+const visitCategories = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+
+const salesData = [
+  { name: '本月', data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3] },
+  { name: '上月', data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3] },
+]
+const salesCategories = [
+  '1月',
+  '2月',
+  '3月',
+  '4月',
+  '5月',
+  '6月',
+  '7月',
+  '8月',
+  '9月',
+  '10月',
+  '11月',
+  '12月',
+]
+
+const userDistributionData = [
+  { name: '新用户', value: 335 },
+  { name: '活跃用户', value: 679 },
+  { name: '沉睡用户', value: 274 },
+  { name: '流失用户', value: 156 },
+]
+
+const completionRate = 75
 
 // 格式化日期
 const formatDate = (date: Date) => {
@@ -216,10 +290,50 @@ const goToProfile = () => {
   router.push('/profile')
 }
 
+// 初始化图表
+const initCharts = async () => {
+  try {
+    // 访问趋势图
+    if (visitTrendChart.value) {
+      await visitTrendChartInstance.initChart(visitTrendChart.value)
+      const visitOption = chartConfigs.line(visitTrendData, visitCategories)
+      visitOption.title!.text = '访问趋势'
+      visitTrendChartInstance.setOption(visitOption)
+    }
+
+    // 销售统计图
+    if (salesChart.value) {
+      await salesChartInstance.initChart(salesChart.value)
+      const salesOption = chartConfigs.bar(salesData, salesCategories)
+      salesOption.title!.text = '销售统计'
+      salesChartInstance.setOption(salesOption)
+    }
+
+    // 用户分布图
+    if (userDistributionChart.value) {
+      await userDistributionChartInstance.initChart(userDistributionChart.value)
+      const userOption = chartConfigs.pie(userDistributionData, '用户分布')
+      userDistributionChartInstance.setOption(userOption)
+    }
+
+    // 完成率仪表盘
+    if (completionChart.value) {
+      await completionChartInstance.initChart(completionChart.value)
+      const completionOption = chartConfigs.gauge(completionRate, '任务完成率')
+      completionChartInstance.setOption(completionOption)
+    }
+  } catch (error) {
+    console.error('图表初始化失败:', error)
+  }
+}
+
 // 生命周期
 onMounted(() => {
   // 每秒更新在线时长
   timer = window.setInterval(updateOnlineTime, 1000)
+
+  // 初始化图表
+  initCharts()
 })
 
 onUnmounted(() => {
@@ -261,8 +375,15 @@ onUnmounted(() => {
 
 .stats-section,
 .actions-section,
+.charts-section,
 .info-section {
   margin-bottom: 8px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 300px;
+  min-height: 300px;
 }
 
 /* 响应式设计 */

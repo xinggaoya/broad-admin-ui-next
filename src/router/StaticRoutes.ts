@@ -64,6 +64,18 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     meta: { title: '表格页', icon: 'TableOutlined', sort: 5 },
     children: [
       {
+        path: 'example',
+        name: 'TableExample',
+        component: 'table/TableExample',
+        meta: { title: '表格示例', icon: 'TableOutlined' },
+      },
+      {
+        path: 'enhanced',
+        name: 'EnhancedTableExample',
+        component: 'table/EnhancedTableExample',
+        meta: { title: '增强表格', icon: 'SettingOutlined' },
+      },
+      {
         path: 'basic',
         name: 'BasicTable',
         component: 'table/BasicTableView',
@@ -83,6 +95,12 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     name: 'Charts',
     meta: { title: '图表页', icon: 'BarChartOutlined', sort: 6 },
     children: [
+      {
+        path: 'template',
+        name: 'ChartsTemplate',
+        component: 'charts/ChartsTemplate',
+        meta: { title: '图表模板', icon: 'DashboardOutlined' },
+      },
       {
         path: 'bar',
         name: 'BarChart',

@@ -2,14 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '../stores/modules/user.ts'
 import { useAppStore } from '../stores/modules/app.ts'
-
-// 扩展 Window 接口
-declare global {
-  interface Window {
-    __ASYNC_ROUTES__?: AppRouteRecordRaw[]
-  }
-}
-
 // 路由元信息接口
 export interface RouteMeta {
   title?: string
@@ -27,6 +19,7 @@ export interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta' | 'childr
   children?: AppRouteRecordRaw[]
 }
 
+let isAddRoutes = false
 // 基础路由（不需要权限的公共路由）
 const constantRoutes: RouteRecordRaw[] = [
   {
@@ -60,12 +53,9 @@ const router = createRouter({
   routes: constantRoutes,
 })
 
-// 动态路由状态
-let isRoutesAdded = false
 
 // 添加动态路由
 export const addAsyncRoutes = async (routes: AppRouteRecordRaw[]) => {
-  if (isRoutesAdded) return
 
   try {
     // 过滤掉已存在的基础路由
@@ -78,10 +68,6 @@ export const addAsyncRoutes = async (routes: AppRouteRecordRaw[]) => {
       router.addRoute(route as RouteRecordRaw)
     })
 
-    isRoutesAdded = true
-
-    // 存储到全局状态，供侧边栏使用
-    window.__ASYNC_ROUTES__ = routes
 
     console.log('动态路由添加完成:', filteredRoutes.length, '个路由')
     return routes
@@ -89,12 +75,6 @@ export const addAsyncRoutes = async (routes: AppRouteRecordRaw[]) => {
     console.error('添加动态路由失败:', error)
     throw error
   }
-}
-
-// 获取所有菜单路由
-export const getMenuRoutes = (): AppRouteRecordRaw[] => {
-  const asyncRoutes = window.__ASYNC_ROUTES__ || []
-  return filterMenuRoutes(asyncRoutes)
 }
 
 // 过滤菜单路由（用于侧边栏显示）
@@ -114,23 +94,6 @@ export const filterMenuRoutes = (routes: AppRouteRecordRaw[]): AppRouteRecordRaw
     })
 }
 
-// 重置路由（用于登出时清除动态路由）
-export const resetRouter = () => {
-  // 移除所有动态添加的路由
-  const asyncRoutes = window.__ASYNC_ROUTES__ || []
-  asyncRoutes.forEach((route: AppRouteRecordRaw) => {
-    if (route.name && route.name !== 'Dashboard') {
-      router.removeRoute(route.name as string)
-    }
-  })
-
-  isRoutesAdded = false
-  window.__ASYNC_ROUTES__ = []
-  console.log('动态路由已重置')
-}
-
-// 检查路由是否已加载
-export const getIsRoutesAdded = () => isRoutesAdded
 
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
@@ -139,7 +102,6 @@ router.beforeEach(async (to, from, next) => {
 
   console.log(`[路由] 导航: ${from.path} → ${to.path}`, {
     isLoggedIn: userStore.isLoggedIn,
-    isRoutesAdded,
     userRoutesLength: userStore.userRoutes.length,
     fromName: from.name,
     toName: to.name,
@@ -155,35 +117,37 @@ router.beforeEach(async (to, from, next) => {
   // 白名单路由（无需登录验证的页面）
   const whiteList = ['/login', '/404']
 
+  // 检查登录状态
+  const token = localStorage.getItem('token')
+
   // 如果是白名单路由，直接通过
   if (whiteList.includes(to.path)) {
     // 如果已登录用户访问登录页，重定向到首页
-    if (to.path === '/login' && userStore.isLoggedIn) {
+    if (to.path === '/login' && token) {
       next('/dashboard')
       return
     }
     next()
     return
   }
-
-  // 检查登录状态
-  if (!userStore.isLoggedIn) {
+  if (!token) {
     console.log('[路由] 用户未登录，重定向到登录页')
     next(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
     return
   }
 
   // 用户已登录，检查动态路由是否已加载
-  if (!isRoutesAdded) {
+  if (!isAddRoutes) {
     // 如果用户有路由数据但路由未加载，先加载路由
     if (userStore.userRoutes.length > 0) {
       try {
         appStore.setRouteLoading(true)
 
-        await addAsyncRoutes(userStore.userRoutes)
+        await addAsyncRoutes(userStore.getRoutes())
 
         appStore.setRouteLoading(false)
 
+        isAddRoutes = true
         // 重新导航到目标路由，使用replace避免历史记录堆叠
         next({ path: to.path, query: to.query, hash: to.hash, replace: true })
         return
@@ -194,17 +158,20 @@ router.beforeEach(async (to, from, next) => {
 
         // 加载失败，跳转到登录页
         userStore.logout()
+        isAddRoutes = true
         next('/login')
         return
       }
     } else {
       // 用户已登录但没有路由数据，可能是刷新页面导致状态丢失
       console.log('[路由] 用户路由数据为空，可能需要重新登录')
+      isAddRoutes = true
       userStore.logout()
       next('/login')
       return
     }
   }
+
 
   // 路由已加载，直接通过
   appStore.setRouteLoading(false)

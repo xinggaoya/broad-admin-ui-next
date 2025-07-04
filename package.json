@@ -15,10 +15,14 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@types/sortablejs": "^1.15.8",
     "@vicons/ionicons5": "^0.13.0",
+    "echarts": "^5.4.3",
     "naive-ui": "^2.42.0",
     "pinia": "^3.0.3",
+    "sortablejs": "^1.15.6",
     "vue": "^3.5.17",
+    "vue-echarts": "^6.6.1",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {

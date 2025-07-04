@@ -99,20 +99,24 @@ export const useUserStore = defineStore('user', () => {
           departmentName: '技术部门',
         }
 
-        // 路由排序
-        const sortedRoutes = filterRoutes(staticRoutes)
+        userRoutes.value = staticRoutes
         // 模拟登录响应
         const response: LoginResponse = {
           token: `mock_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           refreshToken: `mock_refresh_token_${Date.now()}`,
           userInfo: mockUserInfo,
-          routes: sortedRoutes,
+          routes: userRoutes.value,
           expiresIn: 7200, // 2小时
         }
 
         resolve(response)
       }, 800) // 模拟网络延迟
     })
+  }
+
+  // 获取路由
+  const getRoutes = () => {
+    return filterRoutes(staticRoutes)
   }
 
   // 递归处理组件路径以及排序路由
@@ -225,11 +229,6 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('userInfo')
     localStorage.removeItem('userRoutes')
-
-    // 重置路由（需要动态导入避免循环引用）
-    import('../../router').then(({ resetRouter }) => {
-      resetRouter()
-    })
   }
 
   // 初始化用户状态（从本地存储恢复）
@@ -348,7 +347,7 @@ export const useUserStore = defineStore('user', () => {
     isLoggedIn,
     userRoutes,
     menuRoutes,
-
+    getRoutes,
     // 方法
     login,
     logout,
