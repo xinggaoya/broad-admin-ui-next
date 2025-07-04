@@ -11,11 +11,11 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     component: 'dashboard/DashboardView',
     meta: { title: '仪表盘', icon: 'DashboardOutlined', sort: 1 },
   },
-  // 用户管理
+  // 系统管理
   {
-    path: '/users',
-    name: 'Users',
-    meta: { title: '用户管理', icon: 'UserOutlined', sort: 2 },
+    path: '/system',
+    name: 'System',
+    meta: { title: '系统管理', icon: 'SettingOutlined', sort: 3 },
     children: [
       {
         path: 'list',
@@ -29,14 +29,6 @@ export const staticRoutes: AppRouteRecordRaw[] = [
         component: 'users/UserRolesView',
         meta: { title: '用户角色', icon: 'SafetyCertificateOutlined' },
       },
-    ],
-  },
-  // 系统管理
-  {
-    path: '/system',
-    name: 'System',
-    meta: { title: '系统管理', icon: 'SettingOutlined', sort: 3 },
-    children: [
       {
         path: 'menu',
         name: 'MenuManagement',
