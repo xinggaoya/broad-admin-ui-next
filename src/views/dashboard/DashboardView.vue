@@ -153,7 +153,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from '@/stores/modules/user.ts'
 import {
   UserOutlined,
   EyeOutlined,
@@ -231,7 +231,6 @@ onUnmounted(() => {
 
 <style scoped>
 .dashboard-container {
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;

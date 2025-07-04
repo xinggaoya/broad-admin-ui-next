@@ -12,6 +12,6 @@
 
 <style scoped>
 .roles-container {
-  padding: 16px;
+
 }
 </style>

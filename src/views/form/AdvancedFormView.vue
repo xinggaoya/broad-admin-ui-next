@@ -12,6 +12,6 @@
 
 <style scoped>
 .form-container {
-  padding: 16px;
+
 }
 </style>

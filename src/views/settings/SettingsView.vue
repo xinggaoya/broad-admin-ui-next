@@ -326,7 +326,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore, type ThemeColors } from '@/stores/app'
+import { useAppStore, type ThemeColors } from '@/stores/modules/app.ts'
 import { computed, ref } from 'vue'
 import { useMessage, useDialog, type UploadFileInfo } from 'naive-ui'
 import {
@@ -657,7 +657,7 @@ const importSettings = ({ file }: { file: UploadFileInfo }) => {
 
 .animation-demo {
   margin-top: 24px;
-  padding: 16px;
+
   background: #fafafa;
   border-radius: 6px;
 }
@@ -681,7 +681,7 @@ const importSettings = ({ file }: { file: UploadFileInfo }) => {
 
 .cache-info {
   margin-top: 16px;
-  padding: 16px;
+
   background: #fafafa;
   border-radius: 6px;
 }

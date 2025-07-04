@@ -12,6 +12,6 @@
 
 <style scoped>
 .chart-container {
-  padding: 16px;
+
 }
 </style>

@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
-import { useAppStore } from '@/stores/app'
+import { useAppStore } from './stores/modules/app.ts'
 import { useRoute } from 'vue-router'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import AdminLayout from './components/layout/AdminLayout.vue'
 
 const appStore = useAppStore()
 const route = useRoute()
+
+// 路由加载状态
+const isRouteLoading = computed(() => appStore.isRouteLoading)
+const routeLoadError = computed(() => appStore.routeLoadError)
 
 // 判断是否显示管理后台布局
 const showAdminLayout = computed(() => {
@@ -152,8 +156,33 @@ watch(
       <n-dialog-provider>
         <n-notification-provider>
           <n-message-provider>
+            <!-- 路由加载遮罩 -->
+            <div v-if="isRouteLoading" class="route-loading-overlay" :class="{ dark: isDark }">
+              <div class="loading-content">
+                <n-spin size="large" stroke="#18a058">
+                  <template #description>
+                    <div class="loading-text">
+                      <div v-if="routeLoadError" class="error-message">
+                        <n-alert type="error" :show-icon="false">
+                          {{ routeLoadError }}
+                        </n-alert>
+                        <n-button
+                          type="primary"
+                          @click="$router.push('/login')"
+                          style="margin-top: 12px"
+                        >
+                          返回登录
+                        </n-button>
+                      </div>
+                      <div v-else>正在加载路由...</div>
+                    </div>
+                  </template>
+                </n-spin>
+              </div>
+            </div>
+
             <!-- 根据路由显示不同布局 -->
-            <AdminLayout v-if="showAdminLayout" />
+            <AdminLayout v-else-if="showAdminLayout" />
             <router-view v-else />
           </n-message-provider>
         </n-notification-provider>
@@ -164,6 +193,58 @@ watch(
 
 <style>
 /* 全局样式已在main.css中定义 */
+
+/* 路由加载遮罩样式 */
+.route-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+
+.route-loading-overlay.dark {
+  background: rgba(16, 16, 20, 0.9);
+}
+
+.loading-content {
+  text-align: center;
+  padding: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 300px;
+}
+
+.route-loading-overlay.dark .loading-content {
+  background: rgba(24, 24, 28, 0.8);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loading-text {
+  margin-top: 16px;
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+}
+
+.route-loading-overlay.dark .loading-text {
+  color: #ccc;
+}
+
+.error-message {
+  max-width: 400px;
+}
 
 /* 页面动画样式 */
 .page-fade-enter-active,

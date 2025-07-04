@@ -47,7 +47,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { CloseOutlined, MoreOutlined } from '@vicons/antd'
-import { useAppStore } from '@/stores/app'
+import { useAppStore } from '@/stores/modules/app.ts'
 import type { DropdownOption } from 'naive-ui'
 
 defineOptions({
@@ -381,7 +381,7 @@ const scrollToActiveTab = () => {
 watch(
   () => route.path,
   () => {
-    if (route.meta?.title) {
+    if (route.meta?.title && !appStore.isRouteLoading) {
       appStore.addTab({
         key: route.path,
         label: route.meta.title as string,

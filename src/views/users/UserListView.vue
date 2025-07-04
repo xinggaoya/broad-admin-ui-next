@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, h } from 'vue'
 import { PlusOutlined, SearchOutlined } from '@vicons/antd'
 import type { DataTableColumns } from 'naive-ui'
 
@@ -87,7 +88,7 @@ const columns: DataTableColumns = [
   {
     title: '状态',
     key: 'status',
-    render(row: any) {
+    render(row: Record<string, any>) {
       return h(
         'n-tag',
         {
@@ -148,7 +149,7 @@ const pagination = {
   itemCount: userData.value.length,
   showSizePicker: true,
   pageSizes: [10, 20, 50],
-  prefix: ({ itemCount }: any) => `共 ${itemCount} 条`,
+  prefix: ({ itemCount }: { itemCount: number }) => `共 ${itemCount} 条`,
 }
 
 // 搜索处理
@@ -168,7 +169,7 @@ const handleReset = () => {
 
 <style scoped>
 .user-list-container {
-  padding: 16px;
+
 }
 
 .user-list-card {
@@ -177,7 +178,7 @@ const handleReset = () => {
 
 .search-area {
   margin-bottom: 16px;
-  padding: 16px;
+
   background: #fafafa;
   border-radius: 6px;
 }

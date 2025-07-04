@@ -63,7 +63,7 @@
       <div class="user-info">
         <n-dropdown :options="userMenuOptions" @select="handleUserMenuSelect">
           <div class="user-avatar">
-            <n-avatar size="small" src="https://via.placeholder.com/32x32" />
+            <n-avatar size="small" :src="user" />
             <span class="username">Admin</span>
             <n-icon size="12">
               <DownOutlined />
@@ -77,6 +77,7 @@
 
 <script setup lang="ts">
 import { computed, ref, h, onMounted } from 'vue'
+import user from '@/assets/user.jpg'
 import { useRouter, useRoute } from 'vue-router'
 import {
   MenuOutlined,
@@ -92,8 +93,8 @@ import {
   LogoutOutlined,
   HomeOutlined,
 } from '@vicons/antd'
-import { useAppStore } from '@/stores/app'
-import { useUserStore } from '@/stores/user'
+import { useAppStore } from '@/stores/modules/app.ts'
+import { useUserStore } from '@/stores/modules/user.ts'
 import { type DropdownOption, NIcon, useMessage } from 'naive-ui'
 
 interface Props {
@@ -159,7 +160,6 @@ const userMenuOptions: DropdownOption[] = [
 // 切换主题
 const toggleTheme = () => {
   appStore.toggleTheme()
-  appStore.saveTheme()
 }
 
 // 切换全屏

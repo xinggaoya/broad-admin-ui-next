@@ -5,7 +5,7 @@
       <div class="profile-card">
         <n-card>
           <div class="user-info">
-            <n-avatar size="large" src="https://via.placeholder.com/80x80" class="user-avatar" />
+            <n-avatar size="large" :src="user" class="user-avatar" />
             <div class="user-details">
               <h2 class="username">{{ userInfo.name }}</h2>
               <p class="user-role">{{ userInfo.role }}</p>
@@ -99,9 +99,10 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from '@/stores/app'
+import { ref } from 'vue'
+import { useMessage } from 'naive-ui'
+import user from '@/assets/user.jpg'
 
-const appStore = useAppStore()
 const message = useMessage()
 
 // 用户信息
@@ -178,7 +179,7 @@ const handleSave = async () => {
 
     message.success('个人资料更新成功')
     showEditModal.value = false
-  } catch (error) {
+  } catch {
     message.error('请检查表单输入')
   }
 }
@@ -186,7 +187,7 @@ const handleSave = async () => {
 
 <style scoped>
 .profile-container {
-  padding: 16px;
+
   max-width: 1200px;
   margin: 0 auto;
 }

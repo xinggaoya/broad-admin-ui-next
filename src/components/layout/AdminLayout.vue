@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from '@/stores/app'
+import { useAppStore } from '../../stores/modules/app.ts'
 import { computed, onMounted, onUnmounted } from 'vue'
 import Sidebar from './Sidebar.vue'
 import AppHeader from './AppHeader.vue'

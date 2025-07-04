@@ -14,7 +14,7 @@
       <!-- Logo和标题 -->
       <div class="login-header">
         <div class="logo">
-          <img src="/favicon.ico" alt="Logo" class="logo-image" />
+          <img src="../../assets/app-icon.png" alt="Logo" class="logo-image" />
           <h1 class="logo-title">Admin UI</h1>
         </div>
         <p class="login-subtitle">现代化后台管理系统</p>
@@ -113,9 +113,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { UserOutlined, LockOutlined } from '@vicons/antd'
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from '@/stores/modules/user.ts'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import type { LoginRequest } from '@/stores/user'
+import type { LoginRequest } from '@/stores/modules/user.ts'
 
 defineOptions({
   name: 'LoginView',

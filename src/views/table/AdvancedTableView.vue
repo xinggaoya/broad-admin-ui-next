@@ -12,6 +12,6 @@
 
 <style scoped>
 .table-container {
-  padding: 16px;
+
 }
 </style>

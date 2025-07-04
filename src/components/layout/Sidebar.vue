@@ -1,309 +1,326 @@
 <template>
   <div class="sidebar-container">
-    <!-- Logo区域 -->
-    <div class="logo-container">
-      <div class="logo" :class="{ collapsed }">
-        <img src="/favicon.ico" alt="Logo" class="logo-image" />
-        <transition name="fade">
-          <span v-if="!collapsed" class="logo-text">Admin UI</span>
-        </transition>
+    <!-- Logo 区域 -->
+    <div class="sidebar-header">
+      <div class="logo-container">
+        <img class="logo" src="@/assets/logo.svg" alt="Logo" />
+        <h2 v-if="!appStore.sidebarCollapsed" class="logo-title">管理系统</h2>
       </div>
     </div>
 
     <!-- 菜单区域 -->
-    <div class="menu-container">
+    <div class="sidebar-content">
       <n-menu
-        :collapsed="collapsed"
+        v-model:value="selectedKeys"
+        v-model:expanded-keys="expandedKeys"
+        :collapsed="appStore.sidebarCollapsed"
         :collapsed-width="64"
-        :collapsed-icon-size="22"
+        :collapsed-icon-size="20"
         :options="menuOptions"
-        :value="activeKey"
+        :root-indent="24"
+        :indent="18"
+        accordion
         @update:value="handleMenuSelect"
       />
     </div>
 
-    <!-- 折叠按钮 -->
-    <div class="collapse-trigger" @click="$emit('toggle-collapse')">
-      <n-icon size="16">
-        <MenuFoldOutlined v-if="!collapsed" />
-        <MenuUnfoldOutlined v-else />
-      </n-icon>
+    <!-- 底部折叠按钮 -->
+    <div class="sidebar-footer">
+      <n-button
+        text
+        class="collapse-btn"
+        :style="{ justifyContent: appStore.sidebarCollapsed ? 'center' : 'flex-start' }"
+        @click="toggleSidebar"
+      >
+        <template #icon>
+          <n-icon size="18">
+            <MenuFoldOutlined v-if="!appStore.sidebarCollapsed" />
+            <MenuUnfoldOutlined v-else />
+          </n-icon>
+        </template>
+        <span v-if="!appStore.sidebarCollapsed" class="collapse-text">收起菜单</span>
+      </n-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
-import {
-  DashboardOutlined,
-  UserOutlined,
-  SettingOutlined,
-  TableOutlined,
-  FormOutlined,
-  BarChartOutlined,
-  UnorderedListOutlined,
-  TeamOutlined,
-  DatabaseOutlined,
-  FileOutlined,
-  LineChartOutlined,
-  PieChartOutlined,
-  MenuOutlined,
-  HomeOutlined,
-  FolderOutlined,
-} from '@vicons/antd'
-import { NIcon } from 'naive-ui'
-import { h, computed, type Component, ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import type { MenuOption } from 'naive-ui'
-import { getMenuRoutes, type AppRouteRecordRaw } from '@/router'
-
-interface Props {
-  collapsed: boolean
-}
-
-defineProps<Props>()
-defineEmits<{
-  'toggle-collapse': []
-}>()
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
+import type { MenuOption } from '@/utils/menuUtils'
+import { useAppStore } from '@/stores/modules/app.ts'
+import { useUserStore } from '@/stores/modules/user.ts'
 
 defineOptions({
-  name: 'SideBar',
+  name: 'SidebarPanel',
 })
+
+// ==================================================
+// Composables & Store
+// ==================================================
 
 const router = useRouter()
 const route = useRoute()
+const appStore = useAppStore()
+const userStore = useUserStore()
 
-// 图标映射表
-const iconMap: Record<string, Component> = {
-  DashboardOutlined,
-  UserOutlined,
-  SettingOutlined,
-  TableOutlined,
-  FormOutlined,
-  BarChartOutlined,
-  UnorderedListOutlined,
-  TeamOutlined,
-  DatabaseOutlined,
-  FileOutlined,
-  LineChartOutlined,
-  PieChartOutlined,
-  MenuOutlined,
-  HomeOutlined,
-  FolderOutlined,
-}
+// ==================================================
+// Reactive State
+// ==================================================
 
-// 菜单数据
-const menuRoutes = ref<AppRouteRecordRaw[]>([])
+const selectedKeys = ref<string>('')
+const expandedKeys = ref<string[]>([])
 
-// 当前激活的菜单项
-const activeKey = computed(() => {
-  return route.path
-})
-
-// 渲染图标
-const renderIcon = (iconName?: string) => {
-  if (!iconName || !iconMap[iconName]) {
-    return () => h(NIcon, null, { default: () => h(FolderOutlined) })
-  }
-  const IconComponent = iconMap[iconName]
-  return () => h(NIcon, null, { default: () => h(IconComponent) })
-}
-
-// 将路由配置转换为菜单选项
-const transformRouteToMenuOption = (route: AppRouteRecordRaw): MenuOption => {
-  const menuOption: MenuOption = {
-    label: route.meta?.title || (route.name as string),
-    key: route.path,
-    icon: renderIcon(route.meta?.icon),
-  }
-
-  // 处理子菜单
-  if (route.children && route.children.length > 0) {
-    // 过滤掉隐藏的子菜单
-    const visibleChildren = route.children.filter((child) => !child.meta?.hidden)
-
-    if (visibleChildren.length > 0) {
-      menuOption.children = visibleChildren.map((child) => transformRouteToMenuOption(child))
-    }
-  }
-
-  return menuOption
-}
+// ==================================================
+// Computed Properties
+// ==================================================
 
 // 菜单选项
-const menuOptions = computed(() => {
-  return menuRoutes.value
-    .filter((route) => !route.meta?.hidden) // 过滤隐藏的菜单
-    .map((route) => transformRouteToMenuOption(route))
+const menuOptions = computed((): MenuOption[] => {
+  return userStore.menuRoutes || []
 })
 
-// 处理菜单选择
-const handleMenuSelect = (key: string) => {
-  // 找到对应的路由
-  const findRoute = (routes: AppRouteRecordRaw[], targetKey: string): AppRouteRecordRaw | null => {
-    for (const route of routes) {
-      if (route.path === targetKey) {
-        return route
+// ==================================================
+// Methods
+// ==================================================
+
+// 菜单选择处理
+const handleMenuSelect = (key: string, item: MenuOption) => {
+  console.log('🎯 菜单选择:', { key, item })
+
+  if (item.disabled) {
+    console.warn('⚠️ 菜单项已禁用:', key)
+    return
+  }
+
+  // 如果有路径，则跳转
+  if (item.path) {
+    router.push(item.path).catch((err) => {
+      console.error('❌ 路由跳转失败:', err)
+    })
+  }
+}
+
+// 切换侧边栏折叠状态
+const toggleSidebar = () => {
+  appStore.toggleSidebar()
+}
+
+// 更新选中状态
+const updateSelectedKeys = () => {
+  const currentPath = route.path
+  console.log('🔄 更新菜单选中状态:', currentPath)
+
+  // 查找匹配的菜单项
+  const findMenuKey = (items: MenuOption[], path: string): string | null => {
+    for (const item of items) {
+      if (item.path === path) {
+        return item.key
       }
-      if (route.children) {
-        const found = findRoute(route.children, targetKey)
-        if (found) return found
+      if (item.children) {
+        const childKey = findMenuKey(item.children, path)
+        if (childKey) {
+          return childKey
+        }
       }
     }
     return null
   }
 
-  const targetRoute = findRoute(menuRoutes.value, key)
-
-  // 如果路由有组件，直接跳转；否则可能是目录，不跳转
-  if (targetRoute?.component) {
-    router.push(key)
+  const matchedKey = findMenuKey(menuOptions.value, currentPath)
+  if (matchedKey) {
+    selectedKeys.value = matchedKey
+    console.log('✅ 菜单选中状态已更新:', matchedKey)
+  } else {
+    console.log('⚠️ 未找到匹配的菜单项:', currentPath)
   }
 }
 
-// 加载菜单数据
-const loadMenuData = () => {
-  try {
-    const routes = getMenuRoutes()
-    menuRoutes.value = routes
-  } catch (error) {
-    console.error('加载菜单数据失败:', error)
-    menuRoutes.value = []
+// 自动展开父级菜单
+const autoExpandParentMenus = () => {
+  const currentPath = route.path
+
+  // 查找当前路径的所有父级菜单
+  const findParentKeys = (
+    items: MenuOption[],
+    path: string,
+    parentKeys: string[] = [],
+  ): string[] => {
+    for (const item of items) {
+      const currentParentKeys = [...parentKeys, item.key]
+
+      if (item.path === path) {
+        return parentKeys // 返回父级keys，不包含当前项
+      }
+
+      if (item.children) {
+        const result = findParentKeys(item.children, path, currentParentKeys)
+        if (result.length > 0) {
+          return result
+        }
+      }
+    }
+    return []
+  }
+
+  const parentKeys = findParentKeys(menuOptions.value, currentPath)
+  if (parentKeys.length > 0) {
+    expandedKeys.value = [...new Set([...expandedKeys.value, ...parentKeys])]
+    console.log('📂 自动展开父级菜单:', parentKeys)
   }
 }
 
-// 监听路由变化，重新加载菜单（用于动态路由添加后刷新菜单）
+// ==================================================
+// Watchers
+// ==================================================
+
+// 监听路由变化，更新选中状态
 watch(
   () => route.path,
   () => {
-    loadMenuData()
+    updateSelectedKeys()
+    autoExpandParentMenus()
   },
   { immediate: true },
 )
 
-// 监听全局路由状态变化
+// 监听菜单数据变化，重新计算选中状态
 watch(
-  () => (window as any).__ASYNC_ROUTES__,
+  () => userStore.menuRoutes,
   () => {
-    loadMenuData()
+    console.log('📋 菜单数据已更新，重新计算选中状态')
+    updateSelectedKeys()
+    autoExpandParentMenus()
   },
-  { deep: true },
+  { immediate: true },
 )
 </script>
 
 <style scoped>
 .sidebar-container {
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  position: relative;
-}
-
-.logo-container {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid #e8e8e8;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
+  background: #fff;
+  border-right: 1px solid #e8e8e8;
   transition: all 0.3s ease;
 }
 
-.logo.collapsed {
-  padding: 0;
-  justify-content: center;
+.sidebar-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid #e8e8e8;
+  flex-shrink: 0;
 }
 
-.logo-image {
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.logo {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
 }
 
-.logo-text {
+.logo-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1890ff;
+  color: #333;
+  margin: 0;
   white-space: nowrap;
-}
-
-.menu-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 0;
-}
-
-.collapse-trigger {
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-top: 1px solid #e8e8e8;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.collapse-trigger:hover {
-  background: #f5f5f5;
-}
-
-/* 动画效果 */
-.fade-enter-active,
-.fade-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
 }
 
-/* 自定义菜单容器滚动条 */
-.menu-container::-webkit-scrollbar {
+.sidebar-content::-webkit-scrollbar {
   width: 4px;
 }
 
-.menu-container::-webkit-scrollbar-track {
+.sidebar-content::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.menu-container::-webkit-scrollbar-thumb {
+.sidebar-content::-webkit-scrollbar-thumb {
   background: #d9d9d9;
   border-radius: 2px;
 }
 
-.menu-container::-webkit-scrollbar-thumb:hover {
+.sidebar-content::-webkit-scrollbar-thumb:hover {
   background: #bfbfbf;
 }
 
+.sidebar-footer {
+  padding: 8px;
+  border-top: 1px solid #e8e8e8;
+  flex-shrink: 0;
+}
+
+.collapse-btn {
+  width: 100%;
+  height: 40px;
+  color: #666;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.collapse-btn:hover {
+  color: #1677ff;
+  background: #f0f8ff;
+}
+
+.collapse-text {
+  transition: opacity 0.3s ease;
+}
+
 /* 暗黑模式适配 */
-html.dark .logo-container {
+html.dark .sidebar-container {
+  background: #18181c;
+  border-right-color: #2c2c32;
+}
+
+html.dark .sidebar-header {
   border-bottom-color: #2c2c32;
 }
 
-html.dark .collapse-trigger {
+html.dark .logo-title {
+  color: #fff;
+}
+
+html.dark .sidebar-footer {
   border-top-color: #2c2c32;
 }
 
-html.dark .collapse-trigger:hover {
-  background: #2c2c32;
+html.dark .collapse-btn {
+  color: #ccc;
 }
 
-html.dark .logo-text {
-  color: #63e2b7;
+html.dark .collapse-btn:hover {
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.1);
 }
 
-html.dark .menu-container::-webkit-scrollbar-thumb {
+html.dark .sidebar-content::-webkit-scrollbar-thumb {
   background: #48484f;
 }
 
-html.dark .menu-container::-webkit-scrollbar-thumb:hover {
+html.dark .sidebar-content::-webkit-scrollbar-thumb:hover {
   background: #5a5a61;
 }
 </style>
