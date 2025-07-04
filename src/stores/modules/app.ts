@@ -14,6 +14,10 @@ export interface ThemeColors {
 }
 
 export const useAppStore = defineStore('app', () => {
+  // 应用加载状态
+  const isRouteLoading = ref(false)
+  const routeLoadError = ref<string | null>(null)
+
   // 侧边栏状态
   const sidebarCollapsed = ref(false)
   const mobileSidebarOpen = ref(false)
@@ -49,6 +53,21 @@ export const useAppStore = defineStore('app', () => {
   >([])
 
   const activeTab = ref('')
+
+  // 路由加载状态管理
+  const setRouteLoading = (loading: boolean) => {
+    isRouteLoading.value = loading
+    if (loading) {
+      routeLoadError.value = null
+    }
+  }
+
+  const setRouteLoadError = (error: string | null) => {
+    routeLoadError.value = error
+    if (error) {
+      isRouteLoading.value = false
+    }
+  }
 
   // 侧边栏操作
   const toggleSidebarCollapse = () => {
@@ -225,12 +244,10 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('app-settings', JSON.stringify(settings))
   }
 
-  // 兼容旧的方法名
-  const initTheme = initSettings
-  const saveTheme = saveSettings
-
   return {
     // 状态
+    isRouteLoading,
+    routeLoadError,
     sidebarCollapsed,
     mobileSidebarOpen,
     isDark,
@@ -245,7 +262,10 @@ export const useAppStore = defineStore('app', () => {
     activeTab,
 
     // 操作
+    setRouteLoading,
+    setRouteLoadError,
     toggleSidebarCollapse,
+    toggleSidebar: toggleSidebarCollapse, // 别名
     setSidebarCollapsed,
     toggleMobileSidebar,
     closeMobileSidebar,
@@ -265,9 +285,5 @@ export const useAppStore = defineStore('app', () => {
     clearTabs,
     initSettings,
     saveSettings,
-
-    // 兼容旧方法
-    initTheme,
-    saveTheme,
   }
 })
