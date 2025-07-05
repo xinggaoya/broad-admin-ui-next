@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '../stores/modules/user.ts'
 import { useAppStore } from '../stores/modules/app.ts'
+
 // 路由元信息接口
 export interface RouteMeta {
   title?: string
@@ -19,7 +20,9 @@ export interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta' | 'childr
   children?: AppRouteRecordRaw[]
 }
 
-let isAddRoutes = false
+// 路由加载状态
+let isRouteLoaded = false
+
 // 基础路由（不需要权限的公共路由）
 const constantRoutes: RouteRecordRaw[] = [
   {
@@ -66,10 +69,10 @@ export const addAsyncRoutes = async (routes: AppRouteRecordRaw[]) => {
       router.addRoute(route as RouteRecordRaw)
     })
 
-    console.log('动态路由添加完成:', filteredRoutes.length, '个路由')
+    console.log('[动态路由] 添加完成:', filteredRoutes.length, '个路由')
     return routes
   } catch (error) {
-    console.error('添加动态路由失败:', error)
+    console.error('[动态路由] 添加失败:', error)
     throw error
   }
 }
@@ -91,16 +94,21 @@ export const filterMenuRoutes = (routes: AppRouteRecordRaw[]): AppRouteRecordRaw
     })
 }
 
+// 重置路由加载状态
+export const resetRouteLoadState = () => {
+  isRouteLoaded = false
+}
+
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
   const appStore = useAppStore()
 
-  console.log(`[路由] 导航: ${from.path} → ${to.path}`, {
-    isLoggedIn: userStore.isLoggedIn,
-    userRoutesLength: userStore.userRoutes.length,
-    fromName: from.name,
-    toName: to.name,
+  console.log(`[路由守卫] 导航: ${from.path} → ${to.path}`, {
+    isUserDataValid: userStore.isUserDataValid,
+    hasToken: !!userStore.token,
+    hasRouteData: !!userStore.originalRouteData,
+    routeLoadedState: isRouteLoaded,
   })
 
   // 设置页面标题
@@ -113,56 +121,65 @@ router.beforeEach(async (to, from, next) => {
   // 白名单路由（无需登录验证的页面）
   const whiteList = ['/login', '/404']
 
-  // 检查登录状态
-  const token = localStorage.getItem('token')
-
   // 如果是白名单路由，直接通过
   if (whiteList.includes(to.path)) {
     // 如果已登录用户访问登录页，重定向到首页
-    if (to.path === '/login' && token) {
+    if (to.path === '/login' && userStore.isUserDataValid) {
+      console.log('[路由守卫] 已登录用户访问登录页，重定向到首页')
       next('/dashboard')
       return
     }
     next()
     return
   }
-  if (!token) {
-    console.log('[路由] 用户未登录，重定向到登录页')
+
+  // 检查登录状态
+  if (!userStore.isUserDataValid) {
+    console.log('[路由守卫] 用户未登录或数据无效，重定向到登录页')
     next(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
     return
   }
 
   // 用户已登录，检查动态路由是否已加载
-  if (!isAddRoutes) {
-    // 如果用户有路由数据但路由未加载，先加载路由
-    if (userStore.userRoutes.length > 0) {
-      try {
-        appStore.setRouteLoading(true)
+  if (!isRouteLoaded) {
+    try {
+      console.log('[路由守卫] 开始加载动态路由')
+      appStore.setRouteLoading(true)
 
-        await addAsyncRoutes(userStore.getRoutes())
+      // 初始化路由（从持久化存储中恢复）
+      userStore.initRoutes()
 
+      // 获取处理后的路由
+      const processedRoutes = userStore.getRoutes()
+
+      if (processedRoutes.length === 0) {
+        console.warn('[路由守卫] 没有可用的路由数据')
+        appStore.setRouteLoadError('没有可用的路由数据')
         appStore.setRouteLoading(false)
-
-        isAddRoutes = true
-        // 重新导航到目标路由，使用replace避免历史记录堆叠
-        next({ path: to.path, query: to.query, hash: to.hash, replace: true })
-        return
-      } catch (error) {
-        console.error('[路由] 动态路由加载失败:', error)
-        appStore.setRouteLoadError(error instanceof Error ? error.message : '路由加载失败')
-        appStore.setRouteLoading(false)
-
-        // 加载失败，跳转到登录页
         userStore.logout()
-        isAddRoutes = true
         next('/login')
         return
       }
-    } else {
-      // 用户已登录但没有路由数据，可能是刷新页面导致状态丢失
-      console.log('[路由] 用户路由数据为空，可能需要重新登录')
-      isAddRoutes = true
+
+      // 添加动态路由
+      await addAsyncRoutes(processedRoutes)
+
+      // 标记路由已加载
+      isRouteLoaded = true
+      appStore.setRouteLoading(false)
+
+      console.log('[路由守卫] 动态路由加载完成，重新导航')
+      // 重新导航到目标路由，使用replace避免历史记录堆叠
+      next({ path: to.path, query: to.query, hash: to.hash, replace: true })
+      return
+    } catch (error) {
+      console.error('[路由守卫] 动态路由加载失败:', error)
+      appStore.setRouteLoadError(error instanceof Error ? error.message : '路由加载失败')
+      appStore.setRouteLoading(false)
+
+      // 加载失败，清除状态并跳转到登录页
       userStore.logout()
+      resetRouteLoadState()
       next('/login')
       return
     }
@@ -171,6 +188,17 @@ router.beforeEach(async (to, from, next) => {
   // 路由已加载，直接通过
   appStore.setRouteLoading(false)
   next()
+})
+
+// 监听登出事件，重置路由状态
+router.beforeResolve((to) => {
+  const userStore = useUserStore()
+
+  // 如果用户已登出，重置路由加载状态
+  if (!userStore.isUserDataValid && isRouteLoaded) {
+    console.log('[路由守卫] 用户已登出，重置路由状态')
+    resetRouteLoadState()
+  }
 })
 
 export default router
