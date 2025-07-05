@@ -13,9 +13,6 @@ const themeStore = useThemeStore()
 const route = useRoute()
 const { setLoadingBar } = useLoadingBar()
 
-// 路由加载状态
-const isRouteLoading = computed(() => appStore.isRouteLoading)
-
 // 判断是否显示管理后台布局
 const showAdminLayout = computed(() => {
   const noLayoutRoutes = ['/login', '/404']
@@ -55,7 +52,7 @@ onMounted(() => {
         <n-notification-provider>
           <n-message-provider>
             <!-- 路由加载遮罩 -->
-            <LoadingOverlay v-if="isRouteLoading" />
+            <LoadingOverlay v-if="appStore.isRouteLoading" />
 
             <!-- 根据路由显示不同布局 -->
             <AdminLayout v-else-if="showAdminLayout" />

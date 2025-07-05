@@ -150,7 +150,6 @@ router.beforeEach(async (to, from, next) => {
     try {
       // 开始加载动态路由
       appStore.setRouteLoading(true)
-
       // 初始化路由（从持久化存储中恢复）
       userStore.initRoutes()
 
@@ -160,7 +159,9 @@ router.beforeEach(async (to, from, next) => {
       if (processedRoutes.length === 0) {
         // 没有可用的路由数据
         appStore.setRouteLoadError('没有可用的路由数据')
-        appStore.setRouteLoading(false)
+        setTimeout(() => {
+          appStore.setRouteLoading(false)
+        }, 300)
         userStore.logout()
         error()
         next('/login')
@@ -172,7 +173,9 @@ router.beforeEach(async (to, from, next) => {
 
       // 标记路由已加载
       isRouteLoaded = true
-      appStore.setRouteLoading(false)
+      setTimeout(() => {
+        appStore.setRouteLoading(false)
+      }, 300)
 
       // 动态路由加载完成，重新导航
       // 重新导航到目标路由，使用replace避免历史记录堆叠
@@ -182,7 +185,7 @@ router.beforeEach(async (to, from, next) => {
     } catch (err) {
       console.error('[路由守卫] 动态路由加载失败:', err)
       appStore.setRouteLoadError(err instanceof Error ? err.message : '路由加载失败')
-      appStore.setRouteLoading(false)
+      // appStore.setRouteLoading(false)
 
       // 加载失败，清除状态并跳转到登录页
       userStore.logout()
@@ -194,7 +197,9 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 路由已加载，直接通过
-  appStore.setRouteLoading(false)
+  setTimeout(() => {
+    appStore.setRouteLoading(false)
+  }, 300)
   setTimeout(() => finish(), 200)
   next()
 })
