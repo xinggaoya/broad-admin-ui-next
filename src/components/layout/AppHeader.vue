@@ -77,7 +77,7 @@
 
 <script setup lang="ts">
 import { computed, ref, h, onMounted } from 'vue'
-import user from '@/assets/user.jpg'
+import user from '../../assets/user.jpg'
 import { useRouter, useRoute } from 'vue-router'
 import {
   MenuOutlined,
@@ -93,8 +93,9 @@ import {
   LogoutOutlined,
   HomeOutlined,
 } from '@vicons/antd'
-import { useAppStore } from '@/stores/modules/app.ts'
-import { useUserStore } from '@/stores/modules/user.ts'
+import { useAppStore } from '../../stores/modules/app.ts'
+import { useThemeStore } from '../../stores/modules/theme.ts'
+import { useUserStore } from '../../stores/modules/user.ts'
 import { type DropdownOption, NIcon, useMessage } from 'naive-ui'
 
 interface Props {
@@ -110,11 +111,12 @@ defineEmits<{
 const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
+const themeStore = useThemeStore()
 const userStore = useUserStore()
 const message = useMessage()
 
 // 主题状态
-const isDark = computed(() => appStore.isDark)
+const isDark = computed(() => themeStore.isDark)
 const isFullscreen = ref(false)
 
 // 面包屑数据
@@ -159,7 +161,7 @@ const userMenuOptions: DropdownOption[] = [
 
 // 切换主题
 const toggleTheme = () => {
-  appStore.toggleTheme()
+  themeStore.toggleTheme()
 }
 
 // 切换全屏

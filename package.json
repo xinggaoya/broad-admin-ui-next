@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/sortablejs": "^1.15.8",
+    "@vicons/antd": "^0.13.0",
     "@vicons/ionicons5": "^0.13.0",
     "echarts": "^5.4.3",
     "naive-ui": "^2.42.0",

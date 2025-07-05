@@ -4,14 +4,7 @@ import { ref } from 'vue'
 // 动画类型枚举
 export type AnimationType = 'fade' | 'slide' | 'zoom' | 'flip' | 'none'
 
-// 主题颜色配置
-export interface ThemeColors {
-  primary: string
-  info: string
-  success: string
-  warning: string
-  error: string
-}
+// 主题颜色配置已移至 theme.ts
 
 export const useAppStore = defineStore('app', () => {
   // 应用加载状态
@@ -22,15 +15,7 @@ export const useAppStore = defineStore('app', () => {
   const sidebarCollapsed = ref(false)
   const mobileSidebarOpen = ref(false)
 
-  // 主题状态
-  const isDark = ref(false)
-  const themeColors = ref<ThemeColors>({
-    primary: '#18a058', // 现代化绿色
-    info: '#2080f0', // 蓝色
-    success: '#18a058', // 成功绿色
-    warning: '#f0a020', // 警告橙色
-    error: '#d03050', // 错误红色
-  })
+  // 主题状态已移至 theme.ts
 
   // 动画设置
   const pageAnimation = ref<AnimationType>('fade')
@@ -86,30 +71,7 @@ export const useAppStore = defineStore('app', () => {
     mobileSidebarOpen.value = false
   }
 
-  // 主题操作
-  const toggleTheme = () => {
-    isDark.value = !isDark.value
-    updateHtmlClass()
-  }
-
-  const setTheme = (dark: boolean) => {
-    isDark.value = dark
-    updateHtmlClass()
-  }
-
-  const setThemeColors = (colors: Partial<ThemeColors>) => {
-    themeColors.value = { ...themeColors.value, ...colors }
-    saveSettings()
-  }
-
-  const updateHtmlClass = () => {
-    const html = document.documentElement
-    if (isDark.value) {
-      html.classList.add('dark')
-    } else {
-      html.classList.remove('dark')
-    }
-  }
+  // 主题操作已移至 theme.ts
 
   // 动画操作
   const setPageAnimation = (animation: AnimationType) => {
@@ -213,8 +175,7 @@ export const useAppStore = defineStore('app', () => {
     if (savedSettings) {
       try {
         const settings = JSON.parse(savedSettings)
-        isDark.value = settings.isDark || false
-        themeColors.value = { ...themeColors.value, ...(settings.themeColors || {}) }
+        // 主题设置现在在 theme.ts 中处理
         pageAnimation.value = settings.pageAnimation || 'fade'
         animationDuration.value = settings.animationDuration || 300
         enablePageAnimation.value = settings.enablePageAnimation !== false
@@ -223,18 +184,13 @@ export const useAppStore = defineStore('app', () => {
       } catch (error) {
         console.warn('Failed to parse saved settings:', error)
       }
-    } else {
-      // 检测系统主题偏好
-      isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
     }
-    updateHtmlClass()
   }
 
   // 保存设置到localStorage
   const saveSettings = () => {
     const settings = {
-      isDark: isDark.value,
-      themeColors: themeColors.value,
+      // 主题设置现在在 theme.ts 中处理
       pageAnimation: pageAnimation.value,
       animationDuration: animationDuration.value,
       enablePageAnimation: enablePageAnimation.value,
@@ -250,8 +206,7 @@ export const useAppStore = defineStore('app', () => {
     routeLoadError,
     sidebarCollapsed,
     mobileSidebarOpen,
-    isDark,
-    themeColors,
+    // 主题状态已移至 theme.ts
     pageAnimation,
     animationDuration,
     enablePageAnimation,
@@ -269,9 +224,7 @@ export const useAppStore = defineStore('app', () => {
     setSidebarCollapsed,
     toggleMobileSidebar,
     closeMobileSidebar,
-    toggleTheme,
-    setTheme,
-    setThemeColors,
+    // 主题操作已移至 theme.ts
     setPageAnimation,
     setAnimationDuration,
     togglePageAnimation,

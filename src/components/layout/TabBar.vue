@@ -47,7 +47,8 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { CloseOutlined, MoreOutlined } from '@vicons/antd'
-import { useAppStore } from '@/stores/modules/app.ts'
+import { useAppStore } from '../../stores/modules/app.ts'
+import { useThemeStore } from '../../stores/modules/theme.ts'
 import type { DropdownOption } from 'naive-ui'
 
 defineOptions({
@@ -72,6 +73,7 @@ interface Tab {
 const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
+const themeStore = useThemeStore()
 
 // ==================================================
 // Reactive State
@@ -89,7 +91,7 @@ const contextMenuTab = ref<Tab | null>(null)
 
 const tabs = computed(() => appStore.tabs)
 const activeTab = computed(() => appStore.activeTab)
-const primaryColor = computed(() => appStore.themeColors.primary)
+const primaryColor = computed(() => themeStore.themeColors.primary)
 
 // 标签页下拉菜单选项
 const tabMenuOptions = computed((): DropdownOption[] => [

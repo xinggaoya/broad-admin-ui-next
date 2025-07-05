@@ -53,10 +53,8 @@ const router = createRouter({
   routes: constantRoutes,
 })
 
-
 // 添加动态路由
 export const addAsyncRoutes = async (routes: AppRouteRecordRaw[]) => {
-
   try {
     // 过滤掉已存在的基础路由
     const filteredRoutes = routes.filter(
@@ -67,7 +65,6 @@ export const addAsyncRoutes = async (routes: AppRouteRecordRaw[]) => {
     filteredRoutes.forEach((route) => {
       router.addRoute(route as RouteRecordRaw)
     })
-
 
     console.log('动态路由添加完成:', filteredRoutes.length, '个路由')
     return routes
@@ -93,7 +90,6 @@ export const filterMenuRoutes = (routes: AppRouteRecordRaw[]): AppRouteRecordRaw
       return true
     })
 }
-
 
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
@@ -171,7 +167,6 @@ router.beforeEach(async (to, from, next) => {
       return
     }
   }
-
 
   // 路由已加载，直接通过
   appStore.setRouteLoading(false)

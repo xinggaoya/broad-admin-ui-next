@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AdminLayout: typeof import('./src/components/layout/AdminLayout.vue')['default']
     AppHeader: typeof import('./src/components/layout/AppHeader.vue')['default']
+    LoadingOverlay: typeof import('./src/components/layout/LoadingOverlay.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NBadge: typeof import('naive-ui')['NBadge']

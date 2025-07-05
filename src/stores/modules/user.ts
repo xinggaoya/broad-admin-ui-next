@@ -132,16 +132,9 @@ export const useUserStore = defineStore('user', () => {
           // 将相对路径转换为完整路径：'dashboard/DashboardView' -> '/src/views/dashboard/DashboardView.vue'
           const componentPath = `/src/views/${originalComponent}.vue`
 
-          console.log('[组件加载] 处理组件路径:', {
-            original: originalComponent,
-            converted: componentPath,
-            exists: !!viewModules[componentPath],
-          })
-
           if (viewModules[componentPath]) {
             // 将字符串路径转换为动态import函数
             newRoute.component = viewModules[componentPath]
-            console.log('[组件加载] ✅ 组件加载成功:', componentPath)
           } else {
             console.warn('[组件加载] ❌ 未找到组件文件:', componentPath)
             console.log('[组件加载] 可用组件列表:', Object.keys(viewModules))
@@ -167,16 +160,6 @@ export const useUserStore = defineStore('user', () => {
         const hasComponent = !!route.component
         const hasValidChildren = route.children && route.children.length > 0
         const isValidRoute = hasComponent || hasValidChildren
-
-        if (!isValidRoute) {
-          console.warn('[路由过滤] 移除无效路由:', route.path, '(无组件且无子路由)')
-        } else {
-          console.log('[路由保留] 保留路由:', route.path, {
-            hasComponent,
-            hasValidChildren,
-            childrenCount: route.children?.length || 0,
-          })
-        }
 
         return isValidRoute
       })

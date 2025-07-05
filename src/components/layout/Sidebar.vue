@@ -48,9 +48,9 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
-import type { MenuOption } from '@/utils/menuUtils'
-import { useAppStore } from '@/stores/modules/app.ts'
-import { useUserStore } from '@/stores/modules/user.ts'
+import type { MenuOption } from '../../utils/menuUtils'
+import { useAppStore } from '../../stores/modules/app.ts'
+import { useUserStore } from '../../stores/modules/user.ts'
 
 defineOptions({
   name: 'SidebarPanel',

@@ -326,7 +326,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore, type ThemeColors } from '@/stores/modules/app.ts'
+import { useAppStore } from '../../stores/modules/app.ts'
+import { useThemeStore, type ThemeColors } from '../../stores/modules/theme.ts'
 import { computed, ref } from 'vue'
 import { useMessage, useDialog, type UploadFileInfo } from 'naive-ui'
 import {
@@ -346,12 +347,13 @@ defineOptions({
 })
 
 const appStore = useAppStore()
+const themeStore = useThemeStore()
 const message = useMessage()
 const dialog = useDialog()
 
 // 主题状态
-const isDark = computed(() => appStore.isDark)
-const themeColors = computed(() => appStore.themeColors)
+const isDark = computed(() => themeStore.isDark)
+const themeColors = computed(() => themeStore.themeColors)
 
 // 动画状态
 const pageAnimation = computed(() => appStore.pageAnimation)
@@ -431,7 +433,7 @@ const presetThemes = [
 
 // 主题切换
 const handleThemeToggle = (value: boolean) => {
-  appStore.setTheme(value)
+  themeStore.setTheme(value)
   message.success(value ? '已切换到暗黑模式' : '已切换到明亮模式')
 }
 
@@ -440,7 +442,7 @@ const updateThemeColor = (key: keyof ThemeColors, event: Event) => {
   const target = event.target as HTMLInputElement
   const value = target.value
   if (/^#[0-9A-F]{6}$/i.test(value)) {
-    appStore.setThemeColors({ [key]: value })
+    themeStore.setThemeColors({ [key]: value })
     message.success('主题颜色已更新')
   }
 }
@@ -448,14 +450,14 @@ const updateThemeColor = (key: keyof ThemeColors, event: Event) => {
 // 更新主题颜色 - 文本输入
 const updateThemeColorFromInput = (key: keyof ThemeColors, value: string) => {
   if (/^#[0-9A-F]{6}$/i.test(value)) {
-    appStore.setThemeColors({ [key]: value })
+    themeStore.setThemeColors({ [key]: value })
     message.success('主题颜色已更新')
   }
 }
 
 // 应用预设主题
 const applyPresetTheme = (preset: (typeof presetThemes)[0]) => {
-  appStore.setThemeColors(preset.colors)
+  themeStore.setThemeColors(preset.colors)
   message.success(`已应用 ${preset.name} 主题`)
 }
 
@@ -490,8 +492,8 @@ const resetAllSettings = () => {
 // 导出设置
 const exportSettings = () => {
   const settings = {
-    isDark: appStore.isDark,
-    themeColors: appStore.themeColors,
+    isDark: themeStore.isDark,
+    themeColors: themeStore.themeColors,
     pageAnimation: appStore.pageAnimation,
     animationDuration: appStore.animationDuration,
     enablePageAnimation: appStore.enablePageAnimation,
@@ -524,10 +526,10 @@ const importSettings = ({ file }: { file: UploadFileInfo }) => {
       if (typeof settings === 'object' && settings !== null) {
         // 应用设置
         if (typeof settings.isDark === 'boolean') {
-          appStore.setTheme(settings.isDark)
+          themeStore.setTheme(settings.isDark)
         }
         if (settings.themeColors) {
-          appStore.setThemeColors(settings.themeColors)
+          themeStore.setThemeColors(settings.themeColors)
         }
         if (settings.pageAnimation) {
           appStore.setPageAnimation(settings.pageAnimation)
