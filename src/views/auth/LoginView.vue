@@ -14,8 +14,8 @@
       <!-- Logo和标题 -->
       <div class="login-header">
         <div class="logo">
-          <img src="../../assets/app-icon.png" alt="Logo" class="logo-image" />
-          <h1 class="logo-title">Admin UI</h1>
+          <img src="../../assets/app-icon.png" alt="Logo" class="logo-image"/>
+          <h1 class="logo-title">{{ appName }}</h1>
         </div>
         <p class="login-subtitle">现代化后台管理系统</p>
       </div>
@@ -38,7 +38,7 @@
           >
             <template #prefix>
               <n-icon>
-                <UserOutlined />
+                <UserOutlined/>
               </n-icon>
             </template>
           </n-input>
@@ -55,7 +55,7 @@
           >
             <template #prefix>
               <n-icon>
-                <LockOutlined />
+                <LockOutlined/>
               </n-icon>
             </template>
           </n-input>
@@ -63,8 +63,8 @@
 
         <n-form-item :show-label="false">
           <div class="login-options">
-            <n-checkbox v-model:checked="loginForm.rememberMe"> 记住我 </n-checkbox>
-            <n-button text type="primary" size="small"> 忘记密码？ </n-button>
+            <n-checkbox v-model:checked="loginForm.rememberMe"> 记住我</n-checkbox>
+            <n-button text type="primary" size="small"> 忘记密码？</n-button>
           </div>
         </n-form-item>
 
@@ -104,18 +104,18 @@
 
     <!-- 版权信息 -->
     <div class="login-footer">
-      <p>&copy; 2024 Admin UI. All rights reserved.</p>
+      <p>&copy; 2025 {{appName}}. All rights reserved.</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { UserOutlined, LockOutlined } from '@vicons/antd'
-import { useUserStore } from '@/stores/modules/user.ts'
-import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import type { LoginRequest } from '@/stores/modules/user.ts'
+import {ref, computed, onMounted} from 'vue'
+import {useRouter} from 'vue-router'
+import {UserOutlined, LockOutlined} from '@vicons/antd'
+import {useUserStore} from '@/stores/modules/user.ts'
+import {useMessage, type FormInst, type FormRules} from 'naive-ui'
+import type {LoginRequest} from '@/stores/modules/user.ts'
 
 defineOptions({
   name: 'LoginView',
@@ -124,6 +124,7 @@ defineOptions({
 const router = useRouter()
 const userStore = useUserStore()
 const message = useMessage()
+const appName = import.meta.env.VITE_APP_NAME
 
 // 表单引用
 const formRef = ref<FormInst>()

@@ -121,6 +121,13 @@ export const staticRoutes: AppRouteRecordRaw[] = [
           },
         ],
       },
+      // 消息提示
+      {
+        path: 'message',
+        name: 'MessageExample',
+        component: 'template/message/MessageExample',
+        meta: { title: '消息提示', icon: 'NotificationOutlined' },
+      },
     ],
   },
 

@@ -111,11 +111,12 @@ router.beforeEach(async (to, from, next) => {
     routeLoadedState: isRouteLoaded,
   })
 
+  const title = import.meta.env.VITE_APP_NAME
   // 设置页面标题
   if (to.meta?.title) {
-    document.title = `${to.meta.title} - Admin UI`
+    document.title = `${to.meta.title} - ${title}`
   } else {
-    document.title = 'Admin UI'
+    document.title = title
   }
 
   // 白名单路由（无需登录验证的页面）

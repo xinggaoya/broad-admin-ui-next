@@ -20,6 +20,13 @@ export default defineConfig({
         'pinia',
         {
           'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'],
+          'src/utils/message': [
+            'messageApi',
+            'notificationApi',
+            'dialogApi',
+            'loadingBarApi',
+            'modalApi',
+          ],
         },
       ],
       dts: true, // 生成类型声明文件

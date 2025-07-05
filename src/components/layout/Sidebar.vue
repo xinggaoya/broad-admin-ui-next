@@ -3,8 +3,8 @@
     <!-- Logo 区域 -->
     <div class="sidebar-header">
       <div class="logo-container">
-        <img class="logo" src="@/assets/logo.svg" alt="Logo" />
-        <h2 v-if="!appStore.sidebarCollapsed" class="logo-title">管理系统</h2>
+        <img class="logo" src="@/assets/app-icon.png" alt="Logo" />
+        <h2 v-if="!appStore.sidebarCollapsed" class="logo-title">{{ appName}}</h2>
       </div>
     </div>
 
@@ -48,9 +48,9 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
-import type { MenuOption } from '../../utils/menuUtils'
-import { useAppStore } from '../../stores/modules/app.ts'
-import { useUserStore } from '../../stores/modules/user.ts'
+import type { MenuOption } from '@/utils/menuUtils.ts'
+import { useAppStore } from '@/stores/modules/app.ts'
+import { useUserStore } from '@/stores/modules/user.ts'
 
 defineOptions({
   name: 'SidebarPanel',
@@ -64,6 +64,7 @@ const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const appName = import.meta.env.VITE_APP_NAME
 
 // ==================================================
 // Reactive State
