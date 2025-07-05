@@ -134,7 +134,7 @@ export const useUserStore = defineStore(
 
     // 递归处理组件路径以及排序路由
     const processRoutes = (routes: AppRouteRecordRaw[]): AppRouteRecordRaw[] => {
-      console.log('[processRoutes] 处理路由:', routes)
+      // 处理路由
       return routes
         .map((route) => {
           const newRoute = { ...route }
@@ -149,15 +149,15 @@ export const useUserStore = defineStore(
               // 将字符串路径转换为动态import函数
               newRoute.component = viewModules[componentPath]
             } else {
-              console.log('[processRoutes] 组件路径:', originalComponent)
+              // 组件路径: originalComponent
               console.warn('[组件加载] ❌ 未找到组件文件:', componentPath)
-              console.log('[组件加载] 可用组件列表:', Object.keys(viewModules))
+              // 可用组件列表: Object.keys(viewModules)
               // 删除组件属性以避免路由错误
               delete newRoute.component
             }
           } else if (typeof newRoute.component === 'function') {
             // 组件已经是函数，无需处理
-            console.log('[组件加载] 组件已经是函数，跳过处理')
+            // 组件已经是函数，跳过处理
           }
 
           // 递归处理子路由
@@ -188,10 +188,10 @@ export const useUserStore = defineStore(
     // 初始化路由数据（从持久化存储中恢复或处理新的路由数据）
     const initializeRoutes = () => {
       if (originalRouteData.value && originalRouteData.value.routes.length > 0) {
-        console.log('[路由初始化] 从持久化存储恢复路由数据')
+        // 从持久化存储恢复路由数据
         userRoutes.value = processRoutes(originalRouteData.value.routes)
       } else {
-        console.log('[路由初始化] 没有路由数据')
+        // 没有路由数据
         userRoutes.value = []
       }
     }
@@ -216,7 +216,7 @@ export const useUserStore = defineStore(
         // 处理路由组件
         userRoutes.value = processRoutes(response.routes)
 
-        console.log('[登录成功] 用户信息和路由数据已保存到持久化存储')
+        // 登录成功，用户信息和路由数据已保存到持久化存储
         return response
       } catch (error) {
         console.error('[用户] 登录失败:', error)
@@ -234,7 +234,7 @@ export const useUserStore = defineStore(
       originalRouteData.value = null
       isLoggedIn.value = false
 
-      console.log('[登出] 用户状态已清除')
+      // 登出，用户状态已清除
     }
 
     // 检查用户是否已登录且有有效数据

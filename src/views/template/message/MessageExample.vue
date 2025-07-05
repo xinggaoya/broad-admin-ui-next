@@ -400,7 +400,7 @@ const testApiRequest = async () => {
     })
   } catch {
     // 错误会通过我们的 API 封装自动显示
-    console.log('请求失败，已通过 API 封装显示错误消息')
+    // 请求失败，已通过 API 封装显示错误消息
   }
 }
 

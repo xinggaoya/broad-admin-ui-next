@@ -68,23 +68,14 @@ export const alovaInstance = createAlova({
       delete method.config.headers['Content-Type']
     }
 
-    console.log('🚀 发起请求：', {
-      url: method.url,
-      method: method.type,
-      headers: method.config.headers,
-      data: method.data,
-    })
+    // 发起请求: url, method, headers, data
   },
 
   // 全局响应拦截器
   responded: {
     // 响应成功拦截器
     onSuccess: async (response, method) => {
-      console.log('✅ 响应成功：', {
-        url: method.url,
-        status: response.status,
-        statusText: response.statusText,
-      })
+      // 响应成功: url, status, statusText
 
       // 解析响应数据
       const data = await response.json()
@@ -109,10 +100,7 @@ export const alovaInstance = createAlova({
 
     // 响应错误拦截器
     onError: (error, method) => {
-      console.error('❌ 响应错误：', {
-        url: method.url,
-        error: error.message,
-      })
+      // 响应错误: url, error
 
       // 网络错误处理
       if (!navigator.onLine) {

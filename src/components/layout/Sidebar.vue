@@ -4,7 +4,7 @@
     <div class="sidebar-header">
       <div class="logo-container">
         <img class="logo" src="@/assets/app-icon.png" alt="Logo" />
-        <h2 v-if="!appStore.sidebarCollapsed" class="logo-title">{{ appName}}</h2>
+        <h2 v-if="!appStore.sidebarCollapsed" class="logo-title">{{ appName }}</h2>
       </div>
     </div>
 
@@ -46,11 +46,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
 import type { MenuOption } from '@/utils/menuUtils.ts'
 import { useAppStore } from '@/stores/modules/app.ts'
 import { useUserStore } from '@/stores/modules/user.ts'
+import { useRouteLoading } from '@/hooks/useRouteLoading.ts'
 
 defineOptions({
   name: 'SidebarPanel',
@@ -60,10 +61,10 @@ defineOptions({
 // Composables & Store
 // ==================================================
 
-const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const { navigateWithLoading } = useRouteLoading()
 const appName = import.meta.env.VITE_APP_NAME
 
 // ==================================================
@@ -87,19 +88,22 @@ const menuOptions = computed((): MenuOption[] => {
 // ==================================================
 
 // 菜单选择处理
-const handleMenuSelect = (key: string, item: MenuOption) => {
-  console.log('🎯 菜单选择:', { key, item })
+const handleMenuSelect = async (key: string, item: MenuOption) => {
+  // 菜单选择: key, item
 
   if (item.disabled) {
-    console.warn('⚠️ 菜单项已禁用:', key)
+    // 菜单项已禁用: key
     return
   }
 
   // 如果有路径，则跳转
   if (item.path) {
-    router.push(item.path).catch((err) => {
+    try {
+      await navigateWithLoading(item.path)
+      // 路由跳转成功: item.path
+    } catch (err) {
       console.error('❌ 路由跳转失败:', err)
-    })
+    }
   }
 }
 
@@ -111,7 +115,7 @@ const toggleSidebar = () => {
 // 更新选中状态
 const updateSelectedKeys = () => {
   const currentPath = route.path
-  console.log('🔄 更新菜单选中状态:', currentPath)
+  // 更新菜单选中状态: currentPath
 
   // 查找匹配的菜单项
   const findMenuKey = (items: MenuOption[], path: string): string | null => {
@@ -132,9 +136,9 @@ const updateSelectedKeys = () => {
   const matchedKey = findMenuKey(menuOptions.value, currentPath)
   if (matchedKey) {
     selectedKeys.value = matchedKey
-    console.log('✅ 菜单选中状态已更新:', matchedKey)
+    // 菜单选中状态已更新: matchedKey
   } else {
-    console.log('⚠️ 未找到匹配的菜单项:', currentPath)
+    // 未找到匹配的菜单项: currentPath
   }
 }
 
@@ -168,7 +172,7 @@ const autoExpandParentMenus = () => {
   const parentKeys = findParentKeys(menuOptions.value, currentPath)
   if (parentKeys.length > 0) {
     expandedKeys.value = [...new Set([...expandedKeys.value, ...parentKeys])]
-    console.log('📂 自动展开父级菜单:', parentKeys)
+    // 自动展开父级菜单: parentKeys
   }
 }
 
@@ -190,7 +194,7 @@ watch(
 watch(
   () => userStore.menuRoutes,
   () => {
-    console.log('📋 菜单数据已更新，重新计算选中状态')
+    // 菜单数据已更新，重新计算选中状态
     updateSelectedKeys()
     autoExpandParentMenus()
   },

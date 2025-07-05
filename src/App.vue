@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import type { LoadingBarApi } from 'naive-ui'
 import { useAppStore } from './stores/modules/app.ts'
 import { useThemeStore } from './stores/modules/theme.ts'
 import { useRoute } from 'vue-router'
+import { useLoadingBar } from './hooks/useLoadingBar.ts'
 import AdminLayout from './components/layout/AdminLayout.vue'
 import LoadingOverlay from './components/layout/LoadingOverlay.vue'
 
 const appStore = useAppStore()
 const themeStore = useThemeStore()
 const route = useRoute()
+const { setLoadingBar } = useLoadingBar()
 
 // 路由加载状态
 const isRouteLoading = computed(() => appStore.isRouteLoading)
@@ -23,6 +26,21 @@ const showAdminLayout = computed(() => {
 const currentTheme = computed(() => themeStore.currentTheme)
 const themeOverrides = computed(() => themeStore.themeOverrides)
 
+// loading bar实例引用
+const loadingBarInstRef = ref<LoadingBarApi | null>(null)
+
+// 监听loading bar实例
+watch(
+  loadingBarInstRef,
+  (inst: LoadingBarApi | null) => {
+    if (inst) {
+      setLoadingBar(inst)
+      // Loading bar实例已设置
+    }
+  },
+  { immediate: true },
+)
+
 // 初始化应用
 onMounted(() => {
   appStore.initSettings()
@@ -32,7 +50,7 @@ onMounted(() => {
 
 <template>
   <n-config-provider :theme="currentTheme" :theme-overrides="themeOverrides">
-    <n-loading-bar-provider>
+    <n-loading-bar-provider ref="loadingBarInstRef">
       <n-dialog-provider>
         <n-notification-provider>
           <n-message-provider>

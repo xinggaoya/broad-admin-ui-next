@@ -391,11 +391,11 @@ const selectedIcon = ref('')
 const selectedIcons = ref([])
 
 const handleSelect = (iconName) => {
-  console.log('选中图标:', iconName)
+  // 选中图标: iconName
 }
 
 const handleChange = (icons) => {
-  console.log('图标列表变化:', icons)
+  // 图标列表变化
 }
 <\/script>`
 
@@ -410,23 +410,23 @@ import {
 
 // 获取所有图标
 const allIcons = getAllIcons()
-console.log('总图标数量:', allIcons.length)
+  // 总图标数量: allIcons.length
 
 // 获取图标分类
 const categories = getIconCategories()
-console.log('分类:', Object.keys(categories))
+  // 分类: Object.keys(categories)
 
 // 搜索图标
 const searchResults = searchIcons('user')
-console.log('搜索结果:', searchResults)
+  // 搜索结果: searchResults
 
 // 检查图标是否存在
 const exists = hasIcon('DashboardOutlined')
-console.log('图标存在:', exists)
+  // 图标存在: exists
 
 // 获取图标组件
 const component = getIconComponent('UserOutlined')
-console.log('图标组件:', component)`
+  // 图标组件: component`
 </script>
 
 <style scoped>

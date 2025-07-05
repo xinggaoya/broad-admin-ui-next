@@ -23,7 +23,7 @@ export const loginExample = async () => {
       tokenUtils.setToken(response.data.token)
       tokenUtils.setRefreshToken(response.data.refreshToken)
 
-      console.log('登录成功:', response.data.userInfo)
+      // 登录成功
       return response.data
     }
   } catch (error) {
@@ -44,8 +44,7 @@ export const getUserListExample = async () => {
     const response = await userApi.getUserList(params)
 
     if (response.success) {
-      console.log('用户列表:', response.data.list)
-      console.log('分页信息:', response.data.pagination)
+      // 用户列表和分页信息
       return response.data
     }
   } catch (error) {
@@ -67,7 +66,7 @@ export const customConfigExample = async () => {
         showError: false, // 不显示默认错误提示
         customErrorHandler: (error) => {
           // 自定义错误处理
-          console.log('自定义错误处理:', error.message)
+          // 自定义错误处理
           // 这里可以使用 naive-ui 的 message 组件显示错误
         },
       },
@@ -94,7 +93,7 @@ export const uploadFileExample = async (file: File) => {
     })
 
     if (response.success) {
-      console.log('上传成功:', response.data)
+      // 上传成功
       return response.data
     }
   } catch (error) {
@@ -172,7 +171,7 @@ export const tokenManagementExample = () => {
   const hasToken = !!tokenUtils.getToken()
 
   if (!hasToken) {
-    console.log('用户未登录')
+    // 用户未登录
     // 跳转到登录页
     window.location.href = '/login'
     return
