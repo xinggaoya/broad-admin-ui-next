@@ -80,6 +80,9 @@
 
         <n-form-item label="菜单图标" path="icon">
           <n-input v-model:value="formData.icon" placeholder="请输入图标名称">
+            <template #prefix>
+              <IconRenderer v-if="formData.icon" :icon="formData.icon" :size="16" />
+            </template>
             <template #suffix>
               <n-button text @click="showIconPicker = true">
                 <template #icon>
@@ -130,37 +133,17 @@
     </n-modal>
 
     <!-- 图标选择器弹窗 -->
-    <n-modal v-model:show="showIconPicker" preset="dialog" style="width: 800px">
+    <n-modal v-model:show="showIconPicker" preset="dialog" style="width: 900px; height: 700px">
       <template #header>
         <div>选择图标</div>
       </template>
 
-      <div class="icon-picker">
-        <div class="icon-search mb-4">
-          <n-input v-model:value="iconSearchKeyword" placeholder="搜索图标" clearable>
-            <template #prefix>
-              <n-icon>
-                <SearchOutlined />
-              </n-icon>
-            </template>
-          </n-input>
-        </div>
-
-        <div class="icon-grid">
-          <div
-            v-for="icon in filteredIcons"
-            :key="icon.name"
-            class="icon-item"
-            :class="{ active: formData.icon === icon.name }"
-            @click="selectIcon(icon.name)"
-          >
-            <n-icon size="24">
-              <component :is="icon.component" />
-            </n-icon>
-            <div class="icon-name">{{ icon.name }}</div>
-          </div>
-        </div>
-      </div>
+      <IconSelector
+        v-model="formData.icon"
+        :multiple="false"
+        :show-preview="true"
+        style="height: 500px"
+      />
 
       <template #action>
         <n-space>
@@ -183,27 +166,9 @@ import {
   type FormInst,
   type TreeSelectOption,
 } from 'naive-ui'
-import {
-  PlusOutlined,
-  SearchOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  DashboardOutlined,
-  UserOutlined,
-  SettingOutlined,
-  TableOutlined,
-  FormOutlined,
-  BarChartOutlined,
-  UnorderedListOutlined,
-  TeamOutlined,
-  DatabaseOutlined,
-  FileOutlined,
-  LineChartOutlined,
-  PieChartOutlined,
-  MenuOutlined,
-  HomeOutlined,
-  FolderOutlined,
-} from '@vicons/antd'
+import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined } from '@vicons/antd'
+import IconRenderer from '../../components/icon/IconRenderer.vue'
+import IconSelector from '../../components/icon/IconSelector.vue'
 import type { DataTableColumns } from 'naive-ui'
 
 defineOptions({
@@ -233,7 +198,6 @@ const showModal = ref(false)
 const isEdit = ref(false)
 const searchKeyword = ref('')
 const showIconPicker = ref(false)
-const iconSearchKeyword = ref('')
 
 const formData = reactive<MenuItem>({
   id: '',
@@ -248,32 +212,7 @@ const formData = reactive<MenuItem>({
   remark: '',
 })
 
-// 可用图标列表
-const availableIcons = [
-  { name: 'DashboardOutlined', component: DashboardOutlined },
-  { name: 'UserOutlined', component: UserOutlined },
-  { name: 'SettingOutlined', component: SettingOutlined },
-  { name: 'TableOutlined', component: TableOutlined },
-  { name: 'FormOutlined', component: FormOutlined },
-  { name: 'BarChartOutlined', component: BarChartOutlined },
-  { name: 'UnorderedListOutlined', component: UnorderedListOutlined },
-  { name: 'TeamOutlined', component: TeamOutlined },
-  { name: 'DatabaseOutlined', component: DatabaseOutlined },
-  { name: 'FileOutlined', component: FileOutlined },
-  { name: 'LineChartOutlined', component: LineChartOutlined },
-  { name: 'PieChartOutlined', component: PieChartOutlined },
-  { name: 'MenuOutlined', component: MenuOutlined },
-  { name: 'HomeOutlined', component: HomeOutlined },
-  { name: 'FolderOutlined', component: FolderOutlined },
-]
-
-// 过滤图标
-const filteredIcons = computed(() => {
-  if (!iconSearchKeyword.value) return availableIcons
-  return availableIcons.filter((icon) =>
-    icon.name.toLowerCase().includes(iconSearchKeyword.value.toLowerCase()),
-  )
-})
+// 图标相关的响应式数据已移动到新的图标选择器组件中
 
 // 模拟菜单数据
 const menuData = ref<MenuItem[]>([
@@ -400,19 +339,7 @@ const columns: DataTableColumns<MenuItem> = [
     width: 200,
     render: (row) => {
       return h('div', { class: 'flex items-center gap-2' }, [
-        row.icon &&
-          h(
-            NIcon,
-            { size: 16 },
-            {
-              default: () => {
-                const iconComponent = availableIcons.find(
-                  (icon) => icon.name === row.icon,
-                )?.component
-                return iconComponent ? h(iconComponent) : null
-              },
-            },
-          ),
+        row.icon && h(IconRenderer, { icon: row.icon, size: 16 }),
         h('span', row.name),
       ])
     },
@@ -669,11 +596,6 @@ const updateMenuItem = (menu: MenuItem) => {
   updateInMenus(menuData.value)
 }
 
-// 选择图标
-const selectIcon = (iconName: string) => {
-  formData.icon = iconName
-}
-
 // 确认选择图标
 const confirmIconSelect = () => {
   showIconPicker.value = false
@@ -695,45 +617,7 @@ const confirmIconSelect = () => {
   /* 表格样式 */
 }
 
-.icon-picker {
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.icon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 12px;
-}
-
-.icon-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px;
-  border: 1px solid #e8e8e8;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.icon-item:hover {
-  border-color: #18a058;
-  background: #f0f9f4;
-}
-
-.icon-item.active {
-  border-color: #18a058;
-  background: #18a058;
-  color: white;
-}
-
-.icon-name {
-  margin-top: 8px;
-  font-size: 12px;
-  text-align: center;
-  word-break: break-all;
-}
+/* 图标选择器样式已移动到 IconSelector 组件中 */
 
 .mb-4 {
   margin-bottom: 16px;
@@ -751,20 +635,5 @@ const confirmIconSelect = () => {
   gap: 8px;
 }
 
-/* 暗黑模式适配 */
-html.dark .icon-item {
-  border-color: #2c2c32;
-  background: #18181c;
-}
-
-html.dark .icon-item:hover {
-  border-color: #63e2b7;
-  background: #2a4a3a;
-}
-
-html.dark .icon-item.active {
-  border-color: #63e2b7;
-  background: #63e2b7;
-  color: #000;
-}
+/* 图标组件的暗黑模式样式已移动到对应组件中 */
 </style>

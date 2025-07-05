@@ -134,6 +134,7 @@ export const useUserStore = defineStore(
 
     // 递归处理组件路径以及排序路由
     const processRoutes = (routes: AppRouteRecordRaw[]): AppRouteRecordRaw[] => {
+      console.log('[processRoutes] 处理路由:', routes)
       return routes
         .map((route) => {
           const newRoute = { ...route }
@@ -144,11 +145,11 @@ export const useUserStore = defineStore(
 
             // 将相对路径转换为完整路径：'dashboard/DashboardView' -> '/src/views/dashboard/DashboardView.vue'
             const componentPath = `/src/views/${originalComponent}.vue`
-
             if (viewModules[componentPath]) {
               // 将字符串路径转换为动态import函数
               newRoute.component = viewModules[componentPath]
             } else {
+              console.log('[processRoutes] 组件路径:', originalComponent)
               console.warn('[组件加载] ❌ 未找到组件文件:', componentPath)
               console.log('[组件加载] 可用组件列表:', Object.keys(viewModules))
               // 删除组件属性以避免路由错误
@@ -269,15 +270,19 @@ export const useUserStore = defineStore(
 
     // 将路由转换为菜单选项
     const transformRouteToMenuOption = (route: AppRouteRecordRaw, parentPath = ''): MenuOption => {
-      // 计算完整路径
+      // 计算完整路径 - 修复三级以上菜单路径计算问题
       let fullPath: string
-      if (parentPath) {
-        // 确保路径拼接正确，避免双斜杠
-        const cleanParentPath = parentPath.endsWith('/') ? parentPath.slice(0, -1) : parentPath
-        const cleanChildPath = route.path.startsWith('/') ? route.path.slice(1) : route.path
-        fullPath = `${cleanParentPath}/${cleanChildPath}`
-      } else {
+
+      if (route.path.startsWith('/')) {
+        // 绝对路径，直接使用
         fullPath = route.path
+      } else if (parentPath) {
+        // 相对路径，需要拼接父级路径
+        const cleanParentPath = parentPath.endsWith('/') ? parentPath.slice(0, -1) : parentPath
+        fullPath = `${cleanParentPath}/${route.path}`
+      } else {
+        // 根路径，直接使用（通常不应该发生，除非是顶级路由）
+        fullPath = route.path.startsWith('/') ? route.path : `/${route.path}`
       }
 
       const menuOption: MenuOption = {

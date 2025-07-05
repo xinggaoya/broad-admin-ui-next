@@ -10,6 +10,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     AdminLayout: typeof import('./src/components/layout/AdminLayout.vue')['default']
     AppHeader: typeof import('./src/components/layout/AppHeader.vue')['default']
+    IconRenderer: typeof import('./src/components/icon/IconRenderer.vue')['default']
+    IconSelector: typeof import('./src/components/icon/IconSelector.vue')['default']
     LoadingOverlay: typeof import('./src/components/layout/LoadingOverlay.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
     NAvatar: typeof import('naive-ui')['NAvatar']
@@ -45,6 +47,7 @@ declare module 'vue' {
     NNotificationProvider: typeof import('naive-ui')['NNotificationProvider']
     NPageHeader: typeof import('naive-ui')['NPageHeader']
     NPagination: typeof import('naive-ui')['NPagination']
+    NPopover: typeof import('naive-ui')['NPopover']
     NRadio: typeof import('naive-ui')['NRadio']
     NRadioGroup: typeof import('naive-ui')['NRadioGroup']
     NSelect: typeof import('naive-ui')['NSelect']
