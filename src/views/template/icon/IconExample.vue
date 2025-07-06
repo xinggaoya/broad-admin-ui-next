@@ -289,8 +289,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { NCard, NSpace, NButton, NDivider, NModal, NTag, NTabs, NTabPane, NCode } from 'naive-ui'
-import IconRenderer from '../components/icon/IconRenderer.vue'
-import IconSelector from '../components/icon/IconSelector.vue'
+import IconRenderer from '@/components/icon/IconRenderer.vue'
+import IconSelector from '@/components/icon/IconSelector.vue'
 
 defineOptions({
   name: 'IconExample',

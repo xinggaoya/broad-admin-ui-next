@@ -43,90 +43,46 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     name: 'Template',
     meta: { title: '模板示例', icon: 'TemplateOutlined', sort: 4 },
     children: [
-      // 表单页
-      {
-        path: 'form',
-        name: 'Form',
-        meta: { title: '表单页', icon: 'FormOutlined', sort: 4 },
-        children: [
-          {
-            path: 'basic',
-            name: 'BasicForm',
-            component: 'template/form/BasicFormView',
-            meta: { title: '基础表单', icon: 'EditOutlined' },
-          },
-          {
-            path: 'advanced',
-            name: 'AdvancedForm',
-            component: 'template/form/AdvancedFormView',
-            meta: { title: '高级表单', icon: 'FormOutlined' },
-          },
-        ],
-      },
-      // 表格页
+      // 表格示例
       {
         path: 'table',
         name: 'Table',
-        meta: { title: '表格页', icon: 'TableOutlined', sort: 5 },
+        meta: { title: '表格示例', icon: 'TableOutlined', sort: 1 },
         children: [
           {
-            path: 'example',
-            name: 'TableExample',
-            component: 'template/table/TableExample',
-            meta: { title: '表格示例', icon: 'TableOutlined' },
-          },
-          {
-            path: 'enhanced',
-            name: 'EnhancedTableExample',
-            component: 'template/table/EnhancedTableExample',
-            meta: { title: '增强表格', icon: 'SettingOutlined' },
-          },
-          {
             path: 'basic',
-            name: 'BasicTable',
-            component: 'template/table/BasicTableView',
+            name: 'BasicTableExample',
+            component: 'template/table/BasicTableExample',
             meta: { title: '基础表格', icon: 'UnorderedListOutlined' },
           },
           {
             path: 'advanced',
-            name: 'AdvancedTable',
-            component: 'template/table/AdvancedTableView',
-            meta: { title: '高级表格', icon: 'TableOutlined' },
+            name: 'AdvancedTableExample',
+            component: 'template/table/AdvancedTableExample',
+            meta: { title: '高级表格', icon: 'SettingOutlined' },
           },
         ],
       },
-      // 图表页
+      // 图表示例
       {
         path: 'charts',
-        name: 'Charts',
-        meta: { title: '图表页', icon: 'BarChartOutlined', sort: 6 },
-        children: [
-          {
-            path: 'template',
-            name: 'ChartsTemplate',
-            component: 'template/charts/ChartsTemplate',
-            meta: { title: '图表模板', icon: 'DashboardOutlined' },
-          },
-          {
-            path: 'bar',
-            name: 'BarChart',
-            component: 'template/charts/BarChartView',
-            meta: { title: '柱状图', icon: 'BarChartOutlined' },
-          },
-          {
-            path: 'line',
-            name: 'LineChart',
-            component: 'template/charts/LineChartView',
-            meta: { title: '折线图', icon: 'LineChartOutlined' },
-          },
-        ],
+        name: 'ChartsExample',
+        component: 'template/charts/ChartsExample',
+        meta: { title: '图表示例', icon: 'BarChartOutlined', sort: 2 },
       },
-      // 消息提示
+      // 消息示例
       {
         path: 'message',
         name: 'MessageExample',
         component: 'template/message/MessageExample',
-        meta: { title: '消息提示', icon: 'NotificationOutlined' },
+        meta: { title: '消息示例', icon: 'NotificationOutlined', sort: 3 },
+      },
+      // 图标示例
+      {
+        path: 'icon',
+        name: 'IconExample',
+        component: 'template/icon/IconExample',
+        meta: { title: '图标示例', icon: 'AppstoreOutlined', sort: 4 },
       },
     ],
   },

@@ -99,6 +99,7 @@ export const filterMenuRoutes = (routes: AppRouteRecordRaw[]): AppRouteRecordRaw
 export const resetRouteLoadState = () => {
   isRouteLoaded = false
 }
+const title = import.meta.env.VITE_APP_NAME
 
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
@@ -112,7 +113,6 @@ router.beforeEach(async (to, from, next) => {
   start()
   // 路由守卫：开始Loading Bar
 
-  const title = import.meta.env.VITE_APP_NAME
   // 设置页面标题
   if (to.meta?.title) {
     document.title = `${to.meta.title} - ${title}`
@@ -125,13 +125,7 @@ router.beforeEach(async (to, from, next) => {
 
   // 如果是白名单路由，直接通过
   if (whiteList.includes(to.path)) {
-    // 如果已登录用户访问登录页，重定向到首页
-    if (to.path === '/login' && userStore.isUserDataValid) {
-      // 已登录用户访问登录页，重定向到首页
-      setTimeout(() => finish(), 100)
-      next('/dashboard')
-      return
-    }
+    console.log('白名单路由', to.path)
     setTimeout(() => finish(), 100)
     next()
     return

@@ -90,7 +90,11 @@
             <n-input-number v-model:value="chartConfig.updateInterval" :min="1" :max="10" />
           </n-form-item>
           <n-form-item label="图表主题">
-            <n-select v-model:value="chartConfig.theme" :options="themeOptions" @update:value="updateTheme" />
+            <n-select
+              v-model:value="chartConfig.theme"
+              :options="themeOptions"
+              @update:value="updateTheme"
+            />
           </n-form-item>
           <n-form-item label="动画效果">
             <n-switch v-model:value="chartConfig.animation" @update:value="updateAnimation" />
@@ -109,7 +113,7 @@ import { RefreshOutline, DownloadOutline } from '@vicons/ionicons5'
 import type { EChartsOption } from 'echarts'
 
 defineOptions({
-  name: 'ChartsTemplate'
+  name: 'ChartsExample',
 })
 
 const message = useMessage()
@@ -139,13 +143,13 @@ const chartConfig = reactive({
   dataPoints: 20,
   updateInterval: 3,
   theme: 'default',
-  animation: true
+  animation: true,
 })
 
 const themeOptions = [
   { label: '默认', value: 'default' },
   { label: '暗黑', value: 'dark' },
-  { label: '复古', value: 'vintage' }
+  { label: '复古', value: 'vintage' },
 ]
 
 // 实时更新控制
@@ -171,21 +175,34 @@ const generateTimeLabels = (count: number): string[] => {
 // 基础数据
 const lineData: SeriesData[] = [
   { name: '销售额', data: generateRandomData(7, 100, 500) },
-  { name: '利润', data: generateRandomData(7, 50, 200) }
+  { name: '利润', data: generateRandomData(7, 50, 200) },
 ]
 const categories = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 
 const barData: SeriesData[] = [
   { name: '2023年', data: generateRandomData(12, 200, 800) },
-  { name: '2024年', data: generateRandomData(12, 250, 900) }
+  { name: '2024年', data: generateRandomData(12, 250, 900) },
 ]
-const monthCategories = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+const monthCategories = [
+  '1月',
+  '2月',
+  '3月',
+  '4月',
+  '5月',
+  '6月',
+  '7月',
+  '8月',
+  '9月',
+  '10月',
+  '11月',
+  '12月',
+]
 
 const pieData: ChartData[] = [
   { name: '移动端', value: 335 },
   { name: 'PC端', value: 310 },
   { name: '平板', value: 234 },
-  { name: '其他', value: 135 }
+  { name: '其他', value: 135 },
 ]
 
 // 初始化图表
@@ -218,7 +235,7 @@ const initCharts = async () => {
       const radarOption: EChartsOption = {
         title: {
           text: '技能雷达图',
-          left: 'center'
+          left: 'center',
         },
         radar: {
           indicator: [
@@ -227,17 +244,21 @@ const initCharts = async () => {
             { name: 'Angular', max: 100 },
             { name: 'Node.js', max: 100 },
             { name: 'Python', max: 100 },
-            { name: 'Java', max: 100 }
-          ]
+            { name: 'Java', max: 100 },
+          ],
         },
-        series: [{
-          name: '技能水平',
-          type: 'radar',
-          data: [{
-            value: [90, 75, 60, 85, 70, 80],
-            name: '当前水平'
-          }]
-        }]
+        series: [
+          {
+            name: '技能水平',
+            type: 'radar',
+            data: [
+              {
+                value: [90, 75, 60, 85, 70, 80],
+                name: '当前水平',
+              },
+            ],
+          },
+        ],
       }
       radarChartInstance.setOption(radarOption)
     }
@@ -255,25 +276,27 @@ const initCharts = async () => {
       const scatterOption: EChartsOption = {
         title: {
           text: '身高体重分布',
-          left: 'center'
+          left: 'center',
         },
         xAxis: {
           name: '身高(cm)',
           type: 'value',
-          scale: true
+          scale: true,
         },
         yAxis: {
           name: '体重(kg)',
           type: 'value',
-          scale: true
+          scale: true,
         },
-        series: [{
-          type: 'scatter',
-          data: Array.from({ length: 50 }, () => [
-            Math.random() * 50 + 150,
-            Math.random() * 50 + 50
-          ])
-        }]
+        series: [
+          {
+            type: 'scatter',
+            data: Array.from({ length: 50 }, () => [
+              Math.random() * 50 + 150,
+              Math.random() * 50 + 50,
+            ]),
+          },
+        ],
       }
       scatterChartInstance.setOption(scatterOption)
     }
@@ -290,28 +313,28 @@ const initCharts = async () => {
       const heatmapOption: EChartsOption = {
         title: {
           text: '一周活跃时间',
-          left: 'center'
+          left: 'center',
         },
         tooltip: {
-          position: 'top'
+          position: 'top',
         },
         grid: {
           height: '50%',
-          top: '10%'
+          top: '10%',
         },
         xAxis: {
           type: 'category',
           data: Array.from({ length: 24 }, (_, i) => i + '时'),
           splitArea: {
-            show: true
-          }
+            show: true,
+          },
         },
         yAxis: {
           type: 'category',
           data: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
           splitArea: {
-            show: true
-          }
+            show: true,
+          },
         },
         visualMap: {
           min: 0,
@@ -319,22 +342,24 @@ const initCharts = async () => {
           calculable: true,
           orient: 'horizontal',
           left: 'center',
-          bottom: '15%'
+          bottom: '15%',
         },
-        series: [{
-          name: '活跃度',
-          type: 'heatmap',
-          data: heatmapData,
-          label: {
-            show: false
+        series: [
+          {
+            name: '活跃度',
+            type: 'heatmap',
+            data: heatmapData,
+            label: {
+              show: false,
+            },
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
           },
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }]
+        ],
       }
       heatmapChartInstance.setOption(heatmapOption)
     }
@@ -344,7 +369,6 @@ const initCharts = async () => {
       await realTimeChartInstance.initChart(realTimeChart.value)
       initRealTimeChart()
     }
-
   } catch (error) {
     console.error('图表初始化失败:', error)
     message.error('图表初始化失败')
@@ -355,12 +379,14 @@ const initCharts = async () => {
 const initRealTimeChart = () => {
   realTimeData.value = generateRandomData(chartConfig.dataPoints, 0, 100)
   realTimeCategories.value = generateTimeLabels(chartConfig.dataPoints)
-  
+
   const option = chartConfigs.line(
     [{ name: '实时数据', data: realTimeData.value }],
-    realTimeCategories.value
+    realTimeCategories.value,
   )
-  option.title!.text = '实时数据监控'
+  if (option.title && !Array.isArray(option.title)) {
+    option.title.text = '实时数据监控'
+  }
   realTimeChartInstance.setOption(option)
 }
 
@@ -369,16 +395,18 @@ const updateRealTimeData = () => {
   // 移除第一个数据点，添加新的数据点
   realTimeData.value.shift()
   realTimeData.value.push(Math.floor(Math.random() * 100))
-  
+
   // 更新时间标签
   realTimeCategories.value.shift()
   realTimeCategories.value.push(new Date().toLocaleTimeString())
-  
+
   const option = chartConfigs.line(
     [{ name: '实时数据', data: realTimeData.value }],
-    realTimeCategories.value
+    realTimeCategories.value,
   )
-  option.title!.text = '实时数据监控'
+  if (option.title && !Array.isArray(option.title)) {
+    option.title.text = '实时数据监控'
+  }
   realTimeChartInstance.setOption(option)
 }
 
@@ -412,9 +440,9 @@ const exportCharts = () => {
     barData,
     pieData,
     realTimeData: realTimeData.value,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
-  
+
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -422,7 +450,7 @@ const exportCharts = () => {
   a.download = `charts-data-${Date.now()}.json`
   a.click()
   URL.revokeObjectURL(url)
-  
+
   message.success('数据导出成功')
 }
 
@@ -486,12 +514,12 @@ onUnmounted(() => {
   .charts-template-container {
     padding: 12px;
   }
-  
+
   .chart-container {
     height: 300px;
     min-height: 300px;
   }
-  
+
   .small-chart-container {
     height: 150px;
     min-height: 150px;

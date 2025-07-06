@@ -19,18 +19,10 @@
         >
           <n-grid :cols="24" :x-gap="16">
             <n-form-item-gi :span="6" label="姓名" path="name">
-              <n-input
-                v-model:value="searchForm.name"
-                placeholder="请输入姓名"
-                clearable
-              />
+              <n-input v-model:value="searchForm.name" placeholder="请输入姓名" clearable />
             </n-form-item-gi>
             <n-form-item-gi :span="6" label="邮箱" path="email">
-              <n-input
-                v-model:value="searchForm.email"
-                placeholder="请输入邮箱"
-                clearable
-              />
+              <n-input v-model:value="searchForm.email" placeholder="请输入邮箱" clearable />
             </n-form-item-gi>
             <n-form-item-gi :span="6" label="状态" path="status">
               <n-select
@@ -165,10 +157,14 @@ import {
   AddOutline,
   TrashOutline,
   CreateOutline,
-  EyeOutline
+  EyeOutline,
 } from '@vicons/ionicons5'
 import { useTable } from '@/hooks/useTable'
 import TableLayout from '@/components/table/TableLayout.vue'
+
+defineOptions({
+  name: 'AdvancedTableExample',
+})
 
 // 用户数据接口
 interface UserData {
@@ -205,52 +201,54 @@ const mockData: UserData[] = Array.from({ length: 100 }, (_, index) => ({
   email: `user${index + 1}@example.com`,
   age: Math.floor(Math.random() * 50) + 20,
   status: ['active', 'inactive', 'pending'][Math.floor(Math.random() * 3)] as UserData['status'],
-  createTime: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  createTime: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0],
 }))
 
 // 状态映射
 const statusMap = {
   active: { label: '激活', type: 'success' as const },
   inactive: { label: '禁用', type: 'error' as const },
-  pending: { label: '待审核', type: 'warning' as const }
+  pending: { label: '待审核', type: 'warning' as const },
 }
 
 // 状态选项
 const statusOptions = [
   { label: '激活', value: 'active' },
   { label: '禁用', value: 'inactive' },
-  { label: '待审核', value: 'pending' }
+  { label: '待审核', value: 'pending' },
 ]
 
 // 模拟 API
 const mockApi = async (params: any) => {
-  await new Promise(resolve => setTimeout(resolve, 500))
-  
+  await new Promise((resolve) => setTimeout(resolve, 500))
+
   let filteredData = [...mockData]
-  
+
   // 搜索过滤
   if (params.name) {
-    filteredData = filteredData.filter(item => 
-      item.name.toLowerCase().includes(params.name.toLowerCase())
+    filteredData = filteredData.filter((item) =>
+      item.name.toLowerCase().includes(params.name.toLowerCase()),
     )
   }
   if (params.email) {
-    filteredData = filteredData.filter(item => 
-      item.email.toLowerCase().includes(params.email.toLowerCase())
+    filteredData = filteredData.filter((item) =>
+      item.email.toLowerCase().includes(params.email.toLowerCase()),
     )
   }
   if (params.status) {
-    filteredData = filteredData.filter(item => item.status === params.status)
+    filteredData = filteredData.filter((item) => item.status === params.status)
   }
-  
+
   // 分页
   const start = (params.page - 1) * params.pageSize
   const end = start + params.pageSize
   const data = filteredData.slice(start, end)
-  
+
   return {
     data,
-    total: filteredData.length
+    total: filteredData.length,
   }
 }
 
@@ -258,35 +256,35 @@ const mockApi = async (params: any) => {
 const createColumns = (): DataTableColumns<UserData> => [
   {
     type: 'selection',
-    width: 50
+    width: 50,
   },
   {
     title: 'ID',
     key: 'id',
     width: 80,
-    sorter: true
+    sorter: true,
   },
   {
     title: '姓名',
     key: 'name',
     width: 120,
     ellipsis: {
-      tooltip: true
-    }
+      tooltip: true,
+    },
   },
   {
     title: '邮箱',
     key: 'email',
     width: 200,
     ellipsis: {
-      tooltip: true
-    }
+      tooltip: true,
+    },
   },
   {
     title: '年龄',
     key: 'age',
     width: 80,
-    sorter: true
+    sorter: true,
   },
   {
     title: '状态',
@@ -295,13 +293,13 @@ const createColumns = (): DataTableColumns<UserData> => [
     render: (row) => {
       const status = statusMap[row.status]
       return h(NTag, { type: status.type }, { default: () => status.label })
-    }
+    },
   },
   {
     title: '创建时间',
     key: 'createTime',
     width: 120,
-    sorter: true
+    sorter: true,
   },
   {
     title: '操作',
@@ -316,9 +314,9 @@ const createColumns = (): DataTableColumns<UserData> => [
             size: 'small',
             type: 'primary',
             ghost: true,
-            onClick: () => handleEdit(row)
+            onClick: () => handleEdit(row),
           },
-          { default: () => '编辑', icon: () => h(CreateOutline) }
+          { default: () => '编辑', icon: () => h(CreateOutline) },
         ),
         h(
           NButton,
@@ -326,9 +324,9 @@ const createColumns = (): DataTableColumns<UserData> => [
             size: 'small',
             type: 'info',
             ghost: true,
-            onClick: () => handleView(row)
+            onClick: () => handleView(row),
           },
-          { default: () => '查看', icon: () => h(EyeOutline) }
+          { default: () => '查看', icon: () => h(EyeOutline) },
         ),
         h(
           NButton,
@@ -336,13 +334,13 @@ const createColumns = (): DataTableColumns<UserData> => [
             size: 'small',
             type: 'error',
             ghost: true,
-            onClick: () => handleDelete(row)
+            onClick: () => handleDelete(row),
           },
-          { default: () => '删除', icon: () => h(TrashOutline) }
-        )
+          { default: () => '删除', icon: () => h(TrashOutline) },
+        ),
       ])
-    }
-  }
+    },
+  },
 ]
 
 // 使用表格 Hook
@@ -362,7 +360,7 @@ const {
   refreshData,
   updateColumns,
   updateTableDensity,
-  resetTableSettings
+  resetTableSettings,
 } = useTable<UserData>({
   api: mockApi,
   columns: createColumns(),
@@ -370,8 +368,8 @@ const {
   settings: {
     columnSettings: true,
     densitySettings: true,
-    defaultDensity: 'medium'
-  }
+    defaultDensity: 'medium',
+  },
 })
 
 // 编辑相关状态
@@ -381,7 +379,7 @@ const editForm = ref<EditForm>({
   name: '',
   email: '',
   age: 20,
-  status: 'active'
+  status: 'active',
 })
 const editFormRef = ref()
 
@@ -390,24 +388,24 @@ const editRules = {
   name: {
     required: true,
     message: '请输入姓名',
-    trigger: ['input', 'blur']
+    trigger: ['input', 'blur'],
   },
   email: {
     required: true,
     message: '请输入邮箱',
-    trigger: ['input', 'blur']
+    trigger: ['input', 'blur'],
   },
   age: {
     required: true,
     type: 'number',
     message: '请输入年龄',
-    trigger: ['input', 'blur']
+    trigger: ['input', 'blur'],
   },
   status: {
     required: true,
     message: '请选择状态',
-    trigger: ['change', 'blur']
-  }
+    trigger: ['change', 'blur'],
+  },
 }
 
 // 新增用户
@@ -417,7 +415,7 @@ const handleAdd = () => {
     name: '',
     email: '',
     age: 20,
-    status: 'active'
+    status: 'active',
   }
   showEditModal.value = true
 }

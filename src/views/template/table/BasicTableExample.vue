@@ -52,7 +52,7 @@
               </n-form-item>
             </n-gi>
           </n-grid>
-          
+
           <div class="search-actions">
             <n-space>
               <n-button type="primary" @click="handleSearch">
@@ -79,8 +79,8 @@
                 </template>
                 新增
               </n-button>
-              <n-button 
-                type="error" 
+              <n-button
+                type="error"
                 :disabled="selectedRowKeys.length === 0"
                 @click="handleBatchDelete"
               >
@@ -103,7 +103,7 @@
           :data="data"
           :loading="loading"
           :pagination="pagination"
-          :row-key="(row) => row.id"
+          :row-key="(row: UserData) => row.id"
           :checked-row-keys="selectedRowKeys"
           @update:checked-row-keys="handleSelectionChange"
           :scroll-x="1200"
@@ -177,8 +177,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, h } from 'vue'
-import { useMessage, useDialog } from 'naive-ui'
-import { useTable, createMockApi, createColumns } from '@/hooks/useTable'
+import { useMessage, useDialog, NTag, NButton } from 'naive-ui'
+import { useTable, createMockApi } from '@/hooks/useTable'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import {
   SearchOutline,
@@ -186,11 +186,11 @@ import {
   AddOutline,
   TrashOutline,
   CreateOutline,
-  InformationCircleOutline
+  InformationCircleOutline,
 } from '@vicons/ionicons5'
 
 defineOptions({
-  name: 'TableExample'
+  name: 'BasicTableExample',
 })
 
 // 用户数据接口
@@ -214,7 +214,7 @@ const mockUsers: UserData[] = Array.from({ length: 156 }, (_, index) => ({
   department: ['技术部', '产品部', '运营部', '市场部', '人事部'][index % 5],
   status: ['active', 'inactive', 'pending'][index % 3] as 'active' | 'inactive' | 'pending',
   createTime: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-  lastLogin: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
+  lastLogin: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
 }))
 
 // 创建模拟 API
@@ -224,14 +224,14 @@ const mockApi = createMockApi(mockUsers, 800)
 const statusMap = {
   active: { label: '激活', type: 'success' },
   inactive: { label: '禁用', type: 'error' },
-  pending: { label: '待审核', type: 'warning' }
+  pending: { label: '待审核', type: 'warning' },
 }
 
 // 选项数据
 const statusOptions = [
   { label: '激活', value: 'active' },
   { label: '禁用', value: 'inactive' },
-  { label: '待审核', value: 'pending' }
+  { label: '待审核', value: 'pending' },
 ]
 
 const departmentOptions = [
@@ -239,53 +239,119 @@ const departmentOptions = [
   { label: '产品部', value: '产品部' },
   { label: '运营部', value: '运营部' },
   { label: '市场部', value: '市场部' },
-  { label: '人事部', value: '人事部' }
+  { label: '人事部', value: '人事部' },
 ]
 
 // 表格列配置
 const initialColumns: DataTableColumns<UserData> = [
-  createColumns.text('用户名', 'username', 120),
-  createColumns.text('邮箱', 'email', 200),
-  createColumns.text('手机号', 'phone', 130),
-  createColumns.text('部门', 'department', 100),
-  createColumns.status('状态', 'status', statusMap),
-  createColumns.date('创建时间', 'createTime'),
-  createColumns.date('最后登录', 'lastLogin'),
-  createColumns.actions('操作', [
-    {
-      label: '编辑',
-      onClick: (row: UserData) => handleEdit(row),
-      type: 'primary'
+  {
+    type: 'selection',
+    width: 50,
+  },
+  {
+    title: '用户名',
+    key: 'username',
+    width: 120,
+    ellipsis: { tooltip: true },
+  },
+  {
+    title: '邮箱',
+    key: 'email',
+    width: 200,
+    ellipsis: { tooltip: true },
+  },
+  {
+    title: '手机号',
+    key: 'phone',
+    width: 130,
+  },
+  {
+    title: '部门',
+    key: 'department',
+    width: 100,
+  },
+  {
+    title: '状态',
+    key: 'status',
+    width: 100,
+    render: (row) => {
+      const status = statusMap[row.status as keyof typeof statusMap]
+      return h(NTag, { type: status.type as any }, { default: () => status.label })
     },
-    {
-      label: '删除',
-      onClick: (row: UserData) => handleDelete(row),
-      type: 'error'
-    }
-  ])
+  },
+  {
+    title: '创建时间',
+    key: 'createTime',
+    width: 180,
+    render: (row) => new Date(row.createTime).toLocaleDateString(),
+  },
+  {
+    title: '最后登录',
+    key: 'lastLogin',
+    width: 180,
+    render: (row) => new Date(row.lastLogin).toLocaleDateString(),
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 160,
+    render: (row) => [
+      h(
+        NButton,
+        {
+          size: 'small',
+          type: 'primary',
+          ghost: true,
+          style: { marginRight: '8px' },
+          onClick: () => handleEdit(row),
+        },
+        { default: () => '编辑' },
+      ),
+      h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          ghost: true,
+          onClick: () => handleDelete(row),
+        },
+        { default: () => '删除' },
+      ),
+    ],
+  },
 ]
 
 // 使用表格 Hook
 const {
-  data,
+  tableData: data,
   loading,
   total,
   pagination,
   searchForm,
-  resetSearch,
+  handleReset: resetSearch,
   handleSearch,
   selectedRowKeys,
   selectedRows,
   handleSelectionChange,
   clearSelection,
-  refresh,
-  columns
-} = useTable(mockApi, initialColumns, {
-  showPagination: true,
-  showIndex: true,
-  showSelection: true,
-  defaultPageSize: 10,
-  pageSizeOptions: [10, 20, 50, 100]
+  refreshData: refresh,
+  columns,
+} = useTable({
+  api: mockApi,
+  columns: initialColumns,
+  searchForm: {},
+  pagination: {
+    page: 1,
+    pageSize: 10,
+    showSizePicker: true,
+    pageSizes: [10, 20, 50, 100],
+  },
+  immediate: true,
+  settings: {
+    columnSettings: false,
+    densitySettings: false,
+    defaultDensity: 'medium',
+  },
 })
 
 // 消息和对话框
@@ -302,22 +368,18 @@ const searchFormRef = ref<FormInst>()
 const editRules: FormRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 2, max: 20, message: '用户名长度在 2 到 20 个字符', trigger: 'blur' }
+    { min: 2, max: 20, message: '用户名长度在 2 到 20 个字符', trigger: 'blur' },
   ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
   ],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
   ],
-  department: [
-    { required: true, message: '请选择部门', trigger: 'change' }
-  ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'change' }
-  ]
+  department: [{ required: true, message: '请选择部门', trigger: 'change' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
 }
 
 // 新增用户
@@ -327,7 +389,7 @@ const handleAdd = () => {
     email: '',
     phone: '',
     department: '',
-    status: 'pending'
+    status: 'pending',
   }
   showEditModal.value = true
 }
@@ -349,7 +411,7 @@ const handleDelete = (row: UserData) => {
       // 这里应该调用删除 API
       message.success(`已删除用户 "${row.username}"`)
       refresh()
-    }
+    },
   })
 }
 
@@ -359,7 +421,7 @@ const handleBatchDelete = () => {
     message.warning('请先选择要删除的数据')
     return
   }
-  
+
   dialog.warning({
     title: '确认批量删除',
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
@@ -370,7 +432,7 @@ const handleBatchDelete = () => {
       message.success(`已删除 ${selectedRowKeys.value.length} 条数据`)
       clearSelection()
       refresh()
-    }
+    },
   })
 }
 
@@ -445,21 +507,21 @@ onMounted(() => {
   .table-example-container {
     padding: 8px;
   }
-  
+
   .search-section {
     padding: 12px;
   }
-  
+
   .search-actions {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .search-actions .n-space {
     width: 100%;
     justify-content: stretch;
   }
-  
+
   .search-actions .n-button {
     flex: 1;
   }
