@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { LoadingBarApi } from 'naive-ui'
 import { useAppStore } from './stores/modules/app.ts'
 import { useThemeStore } from './stores/modules/theme.ts'
+import { useUserStore } from './stores/modules/user.ts'
 import { useRoute } from 'vue-router'
 import { useLoadingBar } from './hooks/useLoadingBar.ts'
 import AdminLayout from './components/layout/AdminLayout.vue'
@@ -10,13 +11,44 @@ import LoadingOverlay from './components/layout/LoadingOverlay.vue'
 
 const appStore = useAppStore()
 const themeStore = useThemeStore()
+const userStore = useUserStore()
 const route = useRoute()
 const { setLoadingBar } = useLoadingBar()
 
+// 应用初始化状态
+const isAppInitialized = ref(false)
+
 // 判断是否显示管理后台布局
 const showAdminLayout = computed(() => {
+  // 如果应用还未初始化完成，不显示任何布局
+  if (!isAppInitialized.value) {
+    return false
+  }
+  
   const noLayoutRoutes = ['/login', '/404']
-  return !noLayoutRoutes.includes(route.path)
+  const isNoLayoutRoute = noLayoutRoutes.includes(route.path)
+  
+  // 如果是登录页面，直接返回false
+  if (isNoLayoutRoute) {
+    return false
+  }
+  
+  // 如果用户未登录，也不显示管理后台布局
+  if (!userStore.isUserDataValid) {
+    return false
+  }
+  
+  return true
+})
+
+// 判断是否显示路由视图（登录页面等）
+const showRouterView = computed(() => {
+  if (!isAppInitialized.value) {
+    return false
+  }
+  
+  const noLayoutRoutes = ['/login', '/404']
+  return noLayoutRoutes.includes(route.path)
 })
 
 // 主题配置
@@ -39,9 +71,22 @@ watch(
 )
 
 // 初始化应用
-onMounted(() => {
-  appStore.initSettings()
-  themeStore.initSettings()
+onMounted(async () => {
+  try {
+    // 初始化应用设置
+    appStore.initSettings()
+    themeStore.initSettings()
+    
+    // 等待一个tick确保store完全初始化
+    await new Promise(resolve => setTimeout(resolve, 0))
+    
+    // 标记应用已初始化
+    isAppInitialized.value = true
+  } catch (error) {
+    console.error('App initialization failed:', error)
+    // 即使初始化失败，也要标记为已初始化，避免无限加载
+    isAppInitialized.value = true
+  }
 })
 </script>
 
@@ -51,12 +96,18 @@ onMounted(() => {
       <n-dialog-provider>
         <n-notification-provider>
           <n-message-provider>
+            <!-- 应用初始化加载遮罩 -->
+            <LoadingOverlay v-if="!isAppInitialized" />
+            
             <!-- 路由加载遮罩 -->
-            <LoadingOverlay v-if="appStore.isRouteLoading" />
+            <LoadingOverlay v-else-if="appStore.isRouteLoading" />
 
             <!-- 根据路由显示不同布局 -->
             <AdminLayout v-else-if="showAdminLayout" />
-            <router-view v-else />
+            <router-view v-else-if="showRouterView" />
+            
+            <!-- 如果都不匹配，显示加载状态 -->
+            <LoadingOverlay v-else />
           </n-message-provider>
         </n-notification-provider>
       </n-dialog-provider>

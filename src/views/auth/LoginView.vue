@@ -209,8 +209,8 @@ const handleLogin = async () => {
 
 // 页面初始化
 onMounted(() => {
-  // 如果已经登录，直接跳转到首页
-  if (userStore.isLoggedIn) {
+  // 如果已经登录且用户数据有效，直接跳转到首页
+  if (userStore.isUserDataValid) {
     router.push('/dashboard')
   }
 })
