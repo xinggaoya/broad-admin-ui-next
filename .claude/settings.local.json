@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm build)",
+      "Bash(pnpm build-only:*)",
+      "Bash(pnpm run type-check)",
+      "Bash(pnpm run dev)",
+      "Bash(curl:*)",
+      "Bash(pnpm dev)",
+      "Bash(git checkout HEAD -- src/stores/modules/notification.ts)",
+      "Bash(timeout 5 pnpm dev)",
+      "Bash(pnpm list vue-echarts)",
+      "Bash(git add .)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

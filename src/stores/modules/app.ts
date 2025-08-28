@@ -142,16 +142,27 @@ export const useAppStore = defineStore('app', () => {
   const removeTab = (key: string) => {
     const index = tabs.value.findIndex((t) => t.key === key)
     if (index > -1) {
+      // 先保存下一个激活的标签
+      let nextActiveKey = ''
+      if (activeTab.value === key && tabs.value.length > 1) {
+        if (index > 0 && index < tabs.value.length) {
+          // 关闭非最后一个标签，取右侧标签（现在index已经被移除，原right变为当前index）
+          nextActiveKey = tabs.value[index].key
+        } else {
+          // 关闭最后一个标签，取左侧标签
+          nextActiveKey = tabs.value[Math.max(0, index - 1)].key
+        }
+      }
+
       tabs.value.splice(index, 1)
 
       // 从缓存中移除
       removeCachedPage(key.replace('/', ''))
 
-      // 如果删除的是当前活动标签，切换到其他标签
+      // 更新活动标签
       if (activeTab.value === key) {
         if (tabs.value.length > 0) {
-          const nextTab = tabs.value[Math.max(0, index - 1)]
-          activeTab.value = nextTab.key
+          activeTab.value = nextActiveKey
         } else {
           activeTab.value = ''
         }

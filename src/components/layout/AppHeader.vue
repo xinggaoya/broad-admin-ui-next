@@ -42,14 +42,8 @@
         </n-icon>
       </div>
 
-      <!-- 通知 -->
-      <div class="notification">
-        <n-badge :value="3" :max="99">
-          <n-icon size="18">
-            <BellOutlined />
-          </n-icon>
-        </n-badge>
-      </div>
+      <!-- 通知中心 -->
+      <NotificationCenter />
 
       <!-- 全屏 -->
       <div class="fullscreen" @click="toggleFullscreen">
@@ -97,6 +91,7 @@ import { useAppStore } from '../../stores/modules/app.ts'
 import { useThemeStore } from '../../stores/modules/theme.ts'
 import { useUserStore } from '../../stores/modules/user.ts'
 import { type DropdownOption, NIcon, useMessage } from 'naive-ui'
+import NotificationCenter from './NotificationCenter.vue'
 
 interface Props {
   sidebarCollapsed: boolean

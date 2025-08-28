@@ -225,14 +225,36 @@ const handleTabClose = (key: string) => {
   const tab = tabs.value.find((t: Tab) => t.key === key)
   if (!tab || !tab.closable) return
 
+  const wasActive = key === activeTab.value
+  const tabIndex = tabs.value.findIndex((t) => t.key === key)
+
   appStore.removeTab(key)
 
-  // 如果关闭的是当前标签，需要切换到其他标签
-  if (key === activeTab.value && tabs.value.length > 0) {
-    const newActiveTab = tabs.value[0]
-    router.push(newActiveTab.path).catch((err) => {
-      console.error('路由跳转失败:', err)
-    })
+  // 如果关闭的是当前标签，需要切换到其他标签（右侧优先，否则左侧）
+  if (wasActive && tabs.value.length > 0) {
+    // 找到下一个应该激活的标签
+    let newActiveTab
+    
+    if (tabIndex > 0 && tabIndex <= tabs.value.length) {
+      // 优先选择右侧标签
+      newActiveTab = tabs.value[tabIndex - 1] // 由于删除了当前tab，index需要减1
+    } else {
+      // 选择左侧标签
+      newActiveTab = tabs.value[Math.max(0, tabIndex - 1)]
+    }
+
+    if (newActiveTab && newActiveTab.path !== '/dashboard') {
+      console.log('切换到新标签:', newActiveTab.path)
+      router.push(newActiveTab.path).catch((err) => {
+        console.error('路由跳转失败:', err)
+      })
+    } else {
+      // 如果没有合适的标签，跳转到 dashboard
+      console.log('跳转到 dashboard')
+      router.push('/dashboard').catch((err) => {
+        console.error('路由跳转失败:', err)
+      })
+    }
   }
 }
 
